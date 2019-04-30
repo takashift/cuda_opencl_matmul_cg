@@ -39,14 +39,14 @@ CalcOnFPGA::~CalcOnFPGA() {
 
 /********************************************************************/
 void CalcOnFPGA::InitOpenCL(const char   *name,
-                            const float *X,
-                            const float *VAL,
-                            const int *COL_IND,
-                            const int *ROW_PTR,
-                            const float *B,
-                            const int N,
-                            const int K,
-                            const int VAL_SIZE,
+                            float *X,
+                            float *VAL,
+                            int *COL_IND,
+                            int *ROW_PTR,
+                            float *B,
+                            int N,
+                            int K,
+                            int VAL_SIZE,
                             size_t       *global_item_size,
                             size_t       *local_item_size) {
 

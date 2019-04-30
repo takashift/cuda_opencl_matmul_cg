@@ -15,14 +15,14 @@ class CalcOnFPGA {
   ~CalcOnFPGA();
   
   void InitOpenCL(const char *name,
-                  const float *X,
-                  const float *VAL,
-                  const int *COL_IND,
-                  const int *ROW_PTR,
-                  const float *B,
-                  const int N,
-                  const int K,
-                  const int VAL_SIZE,
+                  float *X,
+                  float *VAL,
+                  int *COL_IND,
+                  int *ROW_PTR,
+                  float *B,
+                  int N,
+                  int K,
+                  int VAL_SIZE,
                   size_t *global_item_size,
                   size_t *local_item_size);
 
@@ -58,8 +58,8 @@ class CalcOnFPGA {
   cl_event         finish_event;
   cl_mem           X_buf;  // memory object for read
   cl_mem           VAL_buf;  // memory object for read
-  cl_mem           COL_buf;  // memory object for read
-  cl_mem           ROW_buf;  // memory object for read
+  cl_mem           COL_IND_buf;  // memory object for read
+  cl_mem           ROW_PTR_buf;  // memory object for read
   cl_mem           B_buf;  // memory object for read
 };
 
