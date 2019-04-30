@@ -8,7 +8,7 @@
 __global__ void matmul(float *a, float *b, float *c, unsigned long n) {
   int j = blockIdx.x * blockDim.x + threadIdx.x; // 通し番号を得るための計算
   int i = blockIdx.y * blockDim.y + threadIdx.y;
-  int k;
+  unsigned long k;
   float sum = 0.0f;
   if (i < n || j < n) {
     for(k =0; k<n; k++) {
