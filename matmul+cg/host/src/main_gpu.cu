@@ -6,12 +6,12 @@
 // #include "calc_on_fpga.h"
 
 __global__ void matmul(float *a, float *b, float *c, unsigned long n) {
-  int j = blockIdx.x * blockDim.x + threadIdx.x; // 通し番号を得るための計算
-  int i = blockIdx.y * blockDim.y + threadIdx.y;
+  unsigned long j = blockIdx.x * blockDim.x + threadIdx.x; // 通し番号を得るための計算
+  unsigned long i = blockIdx.y * blockDim.y + threadIdx.y;
   unsigned long k;
   float sum = 0.0f;
   if (i < n || j < n) {
-    for(k =0; k<n; k++) {
+    for(k=0; k<n; k++) {
       sum += a[i*n+k] * b[k*n+j];
     }
     c[i*n+j] = sum;
