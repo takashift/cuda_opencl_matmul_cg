@@ -49,9 +49,9 @@ int main(int argc, char *argv[]) {
   
   for (int i = 0; i < N; ++i) {
     for (int j = 0; j < N; ++j) {
-      h_a[i*N+j] = (j+1)*0.0001f;
-      h_b[i*N+j] = 0.5f;
-      h_c[i*N+j] = 0.0f;
+      h_a[i*numdata_h+j] = (j+1)*0.0001f;
+      h_b[i*numdata_h+j] = 0.5f;
+      h_c[i*numdata_h+j] = 0.0f;
     }
   }
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
   cudaFree(d_b);
   cudaFree(d_c);
 
-  delete[] FPGA_calc_result;
+  // delete[] FPGA_calc_result;
   
   return 0;
 }
