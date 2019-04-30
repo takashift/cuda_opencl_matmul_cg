@@ -130,13 +130,14 @@ void CalcOnFPGA::SendDatatoFPGA(const size_t N,
                                 int *ROW_PTR,
                                 float *B) {
   // host to device_m
-  cl_int status = clEnqueueWriteBuffer(command_queue, VAL_buf, CL_FALSE, 0, sizeof(float)*VAL_SIZE, VAL, 1, &init_event, &write_event[0]);
+  cl_int status;
+  status = clEnqueueWriteBuffer(command_queue, VAL_buf, CL_FALSE, 0, sizeof(float)*VAL_SIZE, VAL, 1, &init_event, &write_event[0]);
   aocl_utils::checkError(status, "Failed to transfer input VAL");
-  cl_int status = clEnqueueWriteBuffer(command_queue, COL_IND_buf, CL_FALSE, 0, sizeof(float)*VAL_SIZE, COL_IND, 1, &init_event, &write_event[0]);
+  status = clEnqueueWriteBuffer(command_queue, COL_IND_buf, CL_FALSE, 0, sizeof(float)*VAL_SIZE, COL_IND, 1, &init_event, &write_event[0]);
   aocl_utils::checkError(status, "Failed to transfer input COL_IND");
-  cl_int status = clEnqueueWriteBuffer(command_queue, ROW_PTR_buf, CL_FALSE, 0, sizeof(float)*N, ROW_PTR, 1, &init_event, &write_event[0]);
+  status = clEnqueueWriteBuffer(command_queue, ROW_PTR_buf, CL_FALSE, 0, sizeof(float)*N, ROW_PTR, 1, &init_event, &write_event[0]);
   aocl_utils::checkError(status, "Failed to transfer input ROW_PTR");
-  cl_int status = clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, sizeof(float)*N, B, 1, &init_event, &write_event[0]);
+  status = clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, sizeof(float)*N, B, 1, &init_event, &write_event[0]);
   aocl_utils::checkError(status, "Failed to transfer input B");
 }
 
