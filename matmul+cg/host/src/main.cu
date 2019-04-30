@@ -46,6 +46,11 @@ int main(int argc, char *argv[]) {
   int *ROW_PTR = new int[N];
   float *B = new float[N];
 
+  posix_memalign((void **)&VAL, 64, VAL_SIZE * sizeof(double));
+  posix_memalign((void **)&COL_IND, 64, VAL_SIZE * sizeof(double));
+  posix_memalign((void **)&ROW_PTR, 64, N * sizeof(double));
+  posix_memalign((void **)&B, 64, N * sizeof(double));
+
   for(int i=0; i<VAL_SIZE; i++) {
     VAL[i] = i+1;
     COL_IND[i] = i;
@@ -64,7 +69,7 @@ int main(int argc, char *argv[]) {
   
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
-  clWaitForEvents(1, &calc_on_fpga.kernel_event);
+  // clWaitForEvents(1, &calc_on_fpga.kernel_event);
   calc_on_fpga.SendDatatoFPGA(N, VAL_SIZE, VAL, COL_IND, ROW_PTR, B);
   calc_on_fpga.Exec(global_item_size, local_item_size);  // kernel running
   // getting the computation results
