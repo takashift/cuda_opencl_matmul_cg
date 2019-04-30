@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
   
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
+  clWaitForEvents(1, &calc_on_fpga.kernel_event);
   calc_on_fpga.SendDatatoFPGA(N, VAL_SIZE, VAL, COL_IND, ROW_PTR, B);
   calc_on_fpga.Exec(global_item_size, local_item_size);  // kernel running
   // getting the computation results
