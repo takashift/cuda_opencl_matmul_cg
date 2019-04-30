@@ -46,10 +46,10 @@ int main(int argc, char *argv[]) {
   int *ROW_PTR;
   float *B;
 
-  posix_memalign((void **)&VAL, 64, VAL_SIZE * sizeof(double));
-  posix_memalign((void **)&COL_IND, 64, VAL_SIZE * sizeof(double));
-  posix_memalign((void **)&ROW_PTR, 64, N * sizeof(double));
-  posix_memalign((void **)&B, 64, N * sizeof(double));
+  posix_memalign((void **)&VAL, 64, VAL_SIZE * sizeof(float));
+  posix_memalign((void **)&COL_IND, 64, VAL_SIZE * sizeof(int));
+  posix_memalign((void **)&ROW_PTR, 64, N * sizeof(int));
+  posix_memalign((void **)&B, 64, N * sizeof(float));
 
   for(int i=0; i<VAL_SIZE; i++) {
     VAL[i] = i+1;
