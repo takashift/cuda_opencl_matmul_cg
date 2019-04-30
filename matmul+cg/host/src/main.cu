@@ -40,25 +40,26 @@ int main(int argc, char *argv[]) {
   int N = 1000;
   int K = 1000;
   int VAL_SIZE = 1000;
-  float *FPGA_calc_result = new float[N];
+  float *FPGA_calc_result; // = new float[N];
   float *VAL;
   int *COL_IND;
   int *ROW_PTR;
   float *B;
 
+  posix_memalign((void **)&FPGA_calc_result, 64, N * sizeof(float));
   posix_memalign((void **)&VAL, 64, VAL_SIZE * sizeof(float));
   posix_memalign((void **)&COL_IND, 64, VAL_SIZE * sizeof(int));
   posix_memalign((void **)&ROW_PTR, 64, N * sizeof(int));
   posix_memalign((void **)&B, 64, N * sizeof(float));
 
   for(int i=0; i<VAL_SIZE; i++) {
-    VAL[i] = i+1;
+    VAL[i] = i+1.0f;
     COL_IND[i] = i;
   }
   for(int j=0; j<N; j++) {
     // FPGA_calc_result[j] = 0;
     ROW_PTR[j] = j*N+j;
-    B[j] = j/2 - 0.0; // x=0.0; b - Ax
+    B[j] = j/2 - 0.0f; // x=0.0; b - Ax
   }
 
   calc_on_fpga.InitOpenCL(name, N, K, VAL_SIZE, global_item_size, local_item_size);

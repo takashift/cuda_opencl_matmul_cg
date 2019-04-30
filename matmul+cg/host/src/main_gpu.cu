@@ -5,8 +5,6 @@
 #include <chrono>
 // #include "calc_on_fpga.h"
 
-static const int numthread = 256;
-
 __global__ void matmul(float *a, float *b, float *c, int n) {
   int j = blockIdx.x * blockDim.x + threadIdx.x; // 通し番号を得るための計算
   int i = blockIdx.y * blockDim.y + threadIdx.y;
@@ -33,22 +31,23 @@ int main(int argc, char *argv[]) {
   const int  numbyte   = numdata_h * numdata_h * sizeof(float); // this sample uses "float"
   const int  numdata_d = (numdata_h/numstream);
 
-  size_t global_item_size[3];
-  size_t local_item_size[3];
+  // size_t global_item_size[3];
+  // size_t local_item_size[3];
   
   // host memory settings
   ///////////////////////////////////////////
 
   /***** GPU *****/
+  static const int numthread = 256;  
+  const int numblock = (numdata_h % numthread) ? (numdata_h/numthread) + 1 : (numdata_h/numthread);
   float *h_a, *h_b, *h_c;
-  dim3 block(64, 64), thread(16, 16);
 
   cudaMallocHost(&h_a, numbyte);
   cudaMallocHost(&h_b, numbyte);
   cudaMallocHost(&h_c, numbyte);
   
-  for (int i = 0; i < numdata_h; ++i) {
-    for (int j = 0; j < numdata_h; ++j) {
+  for (int i = 0; i < numdata_h; i++) {
+    for (int j = 0; j < numdata_h; j++) {
       h_a[i*numdata_h+j] = (j+1)*0.0001f;
       h_b[i*numdata_h+j] = 0.5f;
       h_c[i*numdata_h+j] = 0.0f;
@@ -71,7 +70,7 @@ int main(int argc, char *argv[]) {
   cudaMemcpy(d_a, h_a, numbyte, cudaMemcpyHostToDevice);
   cudaMemcpy(d_b, h_b, numbyte, cudaMemcpyHostToDevice);
   
-  matmul<<<block, thread>>>(d_a, d_b, d_c, numdata_h);
+  matmul<<<numblock, numthread>>>(d_a, d_b, d_c, numdata_h);
   
   cudaMemcpy(h_c, d_c, numbyte, cudaMemcpyDeviceToHost);
 
@@ -82,7 +81,7 @@ int main(int argc, char *argv[]) {
 
 
     std::cout << std::string(30, '-') << std::endl;
-    std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::seconds>(end-start).count() << " sec" << std::endl;
+    std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << " msec" << std::endl;
     
   // cleanup
   ///////////////////////////////////////////
