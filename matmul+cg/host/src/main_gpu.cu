@@ -5,7 +5,7 @@
 #include <chrono>
 // #include "calc_on_fpga.h"
 
-__global__ void matmul(float *a, float *b, float *c, int n) {
+__global__ void matmul(float *a, float *b, float *c, unsigned long n) {
   int j = blockIdx.x * blockDim.x + threadIdx.x; // 通し番号を得るための計算
   int i = blockIdx.y * blockDim.y + threadIdx.y;
   int k;
