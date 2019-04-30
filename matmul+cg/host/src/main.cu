@@ -41,10 +41,10 @@ int main(int argc, char *argv[]) {
   int K = 1000;
   int VAL_SIZE = 1000;
   float *FPGA_calc_result = new float[N];
-  float *VAL = new float[VAL_SIZE];
-  int *COL_IND = new int[VAL_SIZE];
-  int *ROW_PTR = new int[N];
-  float *B = new float[N];
+  float *VAL;
+  int *COL_IND;
+  int *ROW_PTR;
+  float *B;
 
   posix_memalign((void **)&VAL, 64, VAL_SIZE * sizeof(double));
   posix_memalign((void **)&COL_IND, 64, VAL_SIZE * sizeof(double));
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
   calc_on_fpga.SendDatatoFPGA(N, VAL_SIZE, VAL, COL_IND, ROW_PTR, B);
   calc_on_fpga.Exec(global_item_size, local_item_size);  // kernel running
   // getting the computation results
-  calc_on_fpga.RecvDatafromFPGA(numstream, FPGA_calc_result);
+  calc_on_fpga.RecvDatafromFPGA(N, FPGA_calc_result);
 
   std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
   
