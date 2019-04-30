@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 
   // main routine
   ///////////////////////////////////////////
-  const int numblock = (numdata_h % numthread) ? (numdata_h/numthread) + 1 : (numdata_h/numthread);
+  // const int numblock = (numdata_h % numthread) ? (numdata_h/numthread) + 1 : (numdata_h/numthread);
   
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
