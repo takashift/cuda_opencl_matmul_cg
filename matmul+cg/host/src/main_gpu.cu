@@ -45,8 +45,8 @@ int main(int argc, char *argv[]) {
   cudaMallocHost(&h_b, numbyte);
   cudaMallocHost(&h_c, numbyte);
   
-  for (int i = 0; i < numdata_h; i++) {
-    for (int j = 0; j < numdata_h; j++) {
+  for (unsigned long i = 0; i < numdata_h; i++) {
+    for (unsigned long j = 0; j < numdata_h; j++) {
       h_a[i*numdata_h+j] = (j+1)*0.0001f;
       h_b[i*numdata_h+j] = 0.5f;
       h_c[i*numdata_h+j] = 0.0f;
