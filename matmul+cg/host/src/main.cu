@@ -5,16 +5,16 @@
 #include <chrono>
 #include "calc_on_fpga.h"
 
-static const int numthread = 256;
+// static const int numthread = 256;
 
-__global__
-void vecadd(float *a, float *b, float *c, int n) {
-  int i = blockIdx.x * blockDim.x + threadIdx.x;
-  int j = blockIdx.y * blockDim.y + threadIdx.y;
-  if (i < n || j < n) {
-    c[i*n+j] += a[i*n+k] * b[k*n+j];
-  }
-}
+// __global__
+// void vecadd(float *a, float *b, float *c, int n) {
+//   int i = blockIdx.x * blockDim.x + threadIdx.x;
+//   int j = blockIdx.y * blockDim.y + threadIdx.y;
+//   if (i < n || j < n) {
+//     c[i*n+j] += a[i*n+k] * b[k*n+j];
+//   }
+// }
 
 int main(int argc, char *argv[]) {
   // check command line arguments
@@ -79,15 +79,15 @@ int main(int argc, char *argv[]) {
     
   // cleanup
   ///////////////////////////////////////////
-  cudaFreeHost(h_a);
-  cudaFreeHost(h_b);
-  cudaFreeHost(h_c);
-  cudaFree(d_a);
-  cudaFree(d_b);
-  cudaFree(d_c);
-  for (int stm = 0; stm < numstream; ++stm) {
-    cudaStreamDestroy(stream[stm]);
-  }
+  // cudaFreeHost(h_a);
+  // cudaFreeHost(h_b);
+  // cudaFreeHost(h_c);
+  // cudaFree(d_a);
+  // cudaFree(d_b);
+  // cudaFree(d_c);
+  // for (int stm = 0; stm < numstream; ++stm) {
+  //   cudaStreamDestroy(stream[stm]);
+  // }
 
   delete[] FPGA_calc_result;
   
