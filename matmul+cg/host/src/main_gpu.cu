@@ -25,11 +25,10 @@ int main(int argc, char *argv[]) {
   if (argc != 5) { std::cerr << "Error! The number of arguments is wrong."              << std::endl; exit(1); }
 
   const char *name     = argv[1];
-  const int  numdata_h = std::stoull(std::string(argv[2]));
+  const long numdata_h = std::stoull(std::string(argv[2]));
   const int  numstream = std::stoull(std::string(argv[3]));
   const int  numtry    = std::stoull(std::string(argv[4]));
-  const int  numbyte   = numdata_h * numdata_h * sizeof(float); // this sample uses "float"
-  const int  numdata_d = (numdata_h/numstream);
+  const long numbyte   = numdata_h * numdata_h * sizeof(float); // this sample uses "float"
 
   // size_t global_item_size[3];
   // size_t local_item_size[3];
