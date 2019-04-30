@@ -50,7 +50,7 @@ class CalcOnFPGA {
   cl_event         init_event;
   cl_event         write_event[2];
   cl_event         finish_event;
-  cl_mem           Y_buf;  // memory object for read
+  cl_mem           X_buf;  // memory object for read
   cl_mem           VAL_buf;  // memory object for read
   cl_mem           COL_buf;  // memory object for read
   cl_mem           ROW_buf;  // memory object for read
