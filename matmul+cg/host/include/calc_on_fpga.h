@@ -15,8 +15,14 @@ class CalcOnFPGA {
   ~CalcOnFPGA();
   
   void InitOpenCL(const char *name,
-                  const size_t numdata_d,
-                  const size_t numstream,
+                  const float *X,
+                  const float *VAL,
+                  const int *COL_IND,
+                  const int *ROW_PTR,
+                  const float *B,
+                  const int N,
+                  const int K,
+                  const int VAL_SIZE,
                   size_t *global_item_size,
                   size_t *local_item_size);
 

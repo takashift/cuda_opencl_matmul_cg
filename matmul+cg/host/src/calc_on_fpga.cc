@@ -26,9 +26,11 @@ CalcOnFPGA::~CalcOnFPGA() {
   }
   clFlush(command_queue);
   clFinish(command_queue);
-  clReleaseMemObject(Y_buf);
   clReleaseMemObject(X_buf);
-  clReleaseMemObject(I_buf);
+  clReleaseMemObject(VAL_buf);
+  clReleaseMemObject(COL_IND_buf);
+  clReleaseMemObject(ROW_PTR_buf);
+  clReleaseMemObject(B_buf);
   clReleaseKernel(kernel);
   clReleaseProgram(program);
   clReleaseCommandQueue(command_queue);
@@ -117,8 +119,8 @@ void CalcOnFPGA::InitOpenCL(const char   *name,
   unsigned argi = 0;
   status = clSetKernelArg(kernel, argi++, sizeof(cl_mem), &X_buf);       aocl_utils::checkError(status, "Failed to set argument X");
   status = clSetKernelArg(kernel, argi++, sizeof(cl_mem), &VAL_buf);     aocl_utils::checkError(status, "Failed to set argument VAL");
-  status = clSetKernelArg(kernel, argi++, sizeof(cl_mem), &COL_buf);     aocl_utils::checkError(status, "Failed to set argument COL");
-  status = clSetKernelArg(kernel, argi++, sizeof(cl_mem), &ROW_buf);     aocl_utils::checkError(status, "Failed to set argument ROW");
+  status = clSetKernelArg(kernel, argi++, sizeof(cl_mem), &COL_IND_buf);     aocl_utils::checkError(status, "Failed to set argument COL");
+  status = clSetKernelArg(kernel, argi++, sizeof(cl_mem), &ROW_PTR_buf);     aocl_utils::checkError(status, "Failed to set argument ROW");
   status = clSetKernelArg(kernel, argi++, sizeof(cl_mem), &B_buf);       aocl_utils::checkError(status, "Failed to set argument B");
   status = clSetKernelArg(kernel, argi++, sizeof(int),    &N);           aocl_utils::checkError(status, "Failed to set argument N");
   status = clSetKernelArg(kernel, argi++, sizeof(int),    &K);           aocl_utils::checkError(status, "Failed to set argument K");
