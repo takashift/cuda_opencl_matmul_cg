@@ -5,10 +5,10 @@
 #include <chrono>
 // #include "calc_on_fpga.h"
 
-__global__ void matmul(float *a, float *b, float *c, unsigned long long n) {
-  unsigned long long j = blockIdx.x * blockDim.x + threadIdx.x; // 通し番号を得るための計算
-  unsigned long long i = blockIdx.y * blockDim.y + threadIdx.y;
-  unsigned long long k;
+__global__ void matmul(float *a, float *b, float *c, unsigned int n) {
+  unsigned int j = blockIdx.x * blockDim.x + threadIdx.x; // 通し番号を得るための計算
+  unsigned int i = blockIdx.y * blockDim.y + threadIdx.y;
+  unsigned int k;
   float sum = 0.0f;
   if (i < n || j < n) {
     for(k=0; k<n; k++) {
@@ -25,10 +25,10 @@ int main(int argc, char *argv[]) {
   if (argc != 5) { std::cerr << "Error! The number of arguments is wrong."              << std::endl; exit(1); }
 
   const char *name     = argv[1];
-  const unsigned long long numdata_h = std::stoull(std::string(argv[2]));
+  const unsigned int numdata_h = std::stoull(std::string(argv[2]));
   const int  numstream = std::stoull(std::string(argv[3]));
   const int  numtry    = std::stoull(std::string(argv[4]));
-  const unsigned long long numbyte   = numdata_h * numdata_h * sizeof(float); // this sample uses "float"
+  const unsigned int numbyte   = numdata_h * numdata_h * sizeof(float); // this sample uses "float"
 
   // size_t global_item_size[3];
   // size_t local_item_size[3];
@@ -38,15 +38,15 @@ int main(int argc, char *argv[]) {
 
   /***** GPU *****/
   static const int numthread = 256;  
-  const int numblock = (numdata_h % numthread) ? (numdata_h/numthread) + 1 : (numdata_h/numthread);
+  const unsigned int numblock = (numdata_h % numthread) ? (numdata_h/numthread) + 1 : (numdata_h/numthread);
   float *h_a, *h_b, *h_c;
 
   cudaMallocHost(&h_a, numbyte);
   cudaMallocHost(&h_b, numbyte);
   cudaMallocHost(&h_c, numbyte);
   
-  for (unsigned long long i = 0; i < numdata_h; i++) {
-    for (unsigned long long j = 0; j < numdata_h; j++) {
+  for (unsigned int i = 0; i < numdata_h; i++) {
+    for (unsigned int j = 0; j < numdata_h; j++) {
       h_a[i*numdata_h+j] = 0.0f; //(j+1)/2*0.0001f;
       h_b[i*numdata_h+j] = 0.5f;
       h_c[i*numdata_h+j] = 0.0f;
