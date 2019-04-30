@@ -15,22 +15,20 @@ class CalcOnFPGA {
   ~CalcOnFPGA();
   
   void InitOpenCL(const char *name,
-                  float *X,
-                  float *VAL,
-                  int *COL_IND,
-                  int *ROW_PTR,
-                  float *B,
-                  int N,
-                  int K,
-                  int VAL_SIZE,
+                  const size_t N,
+                  const size_t K,
+                  const size_t VAL_SIZE,
                   size_t *global_item_size,
                   size_t *local_item_size);
 
   void ResetIndextoZero();
 
-  void SendDatatoFPGA(const size_t numdata_d,
-                      const int stm,
-                      float *GPU_calc_rslt_list);
+  void SendDatatoFPGA(const size_t N,
+                      const size_t VAL_SIZE,
+                      float *VAL,
+                      int *COL_IND,
+                      int *ROW_PTR,
+                      float *B);
                       // aocl_utils::scoped_aligned_ptr<float> &GPU_calc_rslt_list);
   
   void Exec(const size_t *global_item_size,

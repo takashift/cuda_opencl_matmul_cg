@@ -39,14 +39,9 @@ CalcOnFPGA::~CalcOnFPGA() {
 
 /********************************************************************/
 void CalcOnFPGA::InitOpenCL(const char   *name,
-                            float *X,
-                            float *VAL,
-                            int *COL_IND,
-                            int *ROW_PTR,
-                            float *B,
-                            int N,
-                            int K,
-                            int VAL_SIZE,
+                            const size_t N,
+                            const size_t K,
+                            const size_t VAL_SIZE,
                             size_t       *global_item_size,
                             size_t       *local_item_size) {
 
@@ -104,15 +99,15 @@ void CalcOnFPGA::InitOpenCL(const char   *name,
   command_queue = clCreateCommandQueue(context, device_id[0], 0, &status);
 
   // memory object_m
-  X_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float)*N, X, &status);
+  X_buf = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float)*N, NULL, &status);
   aocl_utils::checkError(status, "Failed to create buffer for X");
-  VAL_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float)*VAL_SIZE, VAL, &status);
+  VAL_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float)*VAL_SIZE, NULL, &status);
   aocl_utils::checkError(status, "Failed to create buffer for VAL");
-  COL_IND_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(int)*VAL_SIZE, COL_IND, &status);
+  COL_IND_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(int)*VAL_SIZE, NULL, &status);
   aocl_utils::checkError(status, "Failed to create buffer for COL_IND");
-  ROW_PTR_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(int)*N, ROW_PTR, &status);
+  ROW_PTR_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(int)*N, NULL, &status);
   aocl_utils::checkError(status, "Failed to create buffer for ROW_PTR");
-  B_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float)*N, B, &status);
+  B_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float)*N, NULL, &status);
   aocl_utils::checkError(status, "Failed to create buffer for B");
 
   // Set kernel arguments.
@@ -125,6 +120,24 @@ void CalcOnFPGA::InitOpenCL(const char   *name,
   status = clSetKernelArg(kernel, argi++, sizeof(int),    &N);           aocl_utils::checkError(status, "Failed to set argument N");
   status = clSetKernelArg(kernel, argi++, sizeof(int),    &K);           aocl_utils::checkError(status, "Failed to set argument K");
   status = clSetKernelArg(kernel, argi++, sizeof(int),    &VAL_SIZE);    aocl_utils::checkError(status, "Failed to set argument VAL_SIZE");
+}
+
+/********************************************************************/
+void CalcOnFPGA::SendDatatoFPGA(const size_t N,
+                                const size_t VAL_SIZE,
+                                float *VAL,
+                                int *COL_IND,
+                                int *ROW_PTR,
+                                float *B) {
+  // host to device_m
+  cl_int status = clEnqueueWriteBuffer(command_queue, VAL_buf, CL_FALSE, 0, sizeof(float)*VAL_SIZE, VAL, 1, &init_event, &write_event[0]);
+  aocl_utils::checkError(status, "Failed to transfer input VAL");
+  cl_int status = clEnqueueWriteBuffer(command_queue, COL_IND_buf, CL_FALSE, 0, sizeof(float)*VAL_SIZE, COL_IND, 1, &init_event, &write_event[0]);
+  aocl_utils::checkError(status, "Failed to transfer input COL_IND");
+  cl_int status = clEnqueueWriteBuffer(command_queue, ROW_PTR_buf, CL_FALSE, 0, sizeof(float)*N, ROW_PTR, 1, &init_event, &write_event[0]);
+  aocl_utils::checkError(status, "Failed to transfer input ROW_PTR");
+  cl_int status = clEnqueueWriteBuffer(command_queue, B_buf, CL_FALSE, 0, sizeof(float)*N, B, 1, &init_event, &write_event[0]);
+  aocl_utils::checkError(status, "Failed to transfer input B");
 }
 
 

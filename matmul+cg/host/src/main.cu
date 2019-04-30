@@ -51,12 +51,12 @@ int main(int argc, char *argv[]) {
     COL_IND[i] = i;
   }
   for(int j=0; j<N; j++) {
-    FPGA_calc_result[j] = 0;
+    // FPGA_calc_result[j] = 0;
     ROW_PTR[j] = j*N+j;
     B[j] = j/2 - 0.0; // x=0.0; b - Ax
   }
 
-  calc_on_fpga.InitOpenCL(name, FPGA_calc_result, VAL, COL_IND, ROW_PTR, B, N, K, VAL_SIZE, global_item_size, local_item_size);
+  calc_on_fpga.InitOpenCL(name, N, K, VAL_SIZE, global_item_size, local_item_size);
 
   // main routine
   ///////////////////////////////////////////
@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
   
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
+  calc_on_fpga.SendDatatoFPGA(N, VAL_SIZE, VAL, COL_IND, ROW_PTR, B);
   calc_on_fpga.Exec(global_item_size, local_item_size);  // kernel running
   // getting the computation results
   calc_on_fpga.RecvDatafromFPGA(numstream, FPGA_calc_result);
