@@ -50,6 +50,7 @@ void verify(float *h_c, float *c_CPU, unsigned long numdata_h) {
   double gpu_sum = 0.0;
   double rel_err = 0.0;
 
+  #pragma omp parallel for
   for (int i=0; i<numdata_h*numdata_h; i++){
     cpu_sum += (double)c_CPU[i]*c_CPU[i];
     gpu_sum += (double)h_c[i]*h_c[i];
