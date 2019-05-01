@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <vector>
+#include <omp.h>
 #include <chrono>
 // #include "calc_on_fpga.h"
 
