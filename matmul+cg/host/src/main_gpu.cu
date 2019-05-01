@@ -46,6 +46,29 @@ void MatrixMultiplication_openmp(float *a,float *b, float *c, unsigned long N)
   }
 }
 
+void matrix_vector_malti(float *a,float *b, float *c, unsigned long N)
+{
+  unsigned long  i, j, k ;
+  int chunk;
+  #ifdef _OPENMP
+	if(omp_get_thread_num() == 0) {
+    printf("Number of OpenMP threads %d\n", omp_get_num_threads());
+    chunk = N/omp_get_num_threads();  
+	}
+  #endif
+
+#pragma omp parallel shared(a,b,c,chunk) private(i,k)
+  {
+#pragma omp for
+    for (i=0; i<N; i++){
+      float sum = 0.0 ;
+      for (k=0; k<N; k++)
+        sum += a[i*N+k]*b[k];
+      c[i] = sum ;
+    }
+  }
+}
+
 void verify(float *h_c, float *c_CPU, unsigned long numdata_h) {
   double cpu_sum = 0.0;
   double gpu_sum = 0.0;
@@ -138,6 +161,8 @@ int main(int argc, char *argv[]) {
 
   std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
   
+
+
   // verification
   ///////////////////////////////////////////
   MatrixMultiplication_openmp(h_a, h_b, c_CPU, numdata_h);
