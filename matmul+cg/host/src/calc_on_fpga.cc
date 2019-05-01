@@ -249,7 +249,7 @@ void CalcOnFPGA::Verify(
 // }
 
 	for(int j = 0; j < N; j++){
-    std::cout << "FPGA" << FPGA_calc_result[j] << ", CPU"<< x[j] << std::endl;
+    // std::cout << "FPGA" << FPGA_calc_result[j] << ", CPU"<< x[j] << std::endl;
 		if(FPGA_calc_result[j] != x[j]) {
       error = j;
       break;

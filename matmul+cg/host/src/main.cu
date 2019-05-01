@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
   posix_memalign((void **)&FPGA_calc_result, 64, N * sizeof(float));
   posix_memalign((void **)&VAL, 64, VAL_SIZE * sizeof(float));
   posix_memalign((void **)&COL_IND, 64, VAL_SIZE * sizeof(int));
-  posix_memalign((void **)&ROW_PTR, 64, N+1 * sizeof(int));
+  posix_memalign((void **)&ROW_PTR, 64, (N+1) * sizeof(int));
   posix_memalign((void **)&B, 64, N * sizeof(float));
 
   for(int i=0; i<VAL_SIZE; i++) {
