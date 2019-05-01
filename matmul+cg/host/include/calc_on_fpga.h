@@ -40,13 +40,13 @@ class CalcOnFPGA {
   
   void Verify(
     float* FPGA_calc_result,
-    const float* VAL,
-    const int* COL_IND,
-    const int* ROW_PTR,
-    const float* B,
-    const int N,
-    const int K,
-    const int VAL_SIZE);
+    float* VAL,
+    int* COL_IND,
+    int* ROW_PTR,
+    float* B,
+    int N,
+    int K,
+    int VAL_SIZE);
               // aocl_utils::scoped_aligned_ptr<float> &FPGA_calc_rslt_list);
 
   cl_event         kernel_event;
