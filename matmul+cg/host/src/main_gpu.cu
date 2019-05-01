@@ -11,15 +11,16 @@ __global__ void matmul(float *a, float *b, float *c, unsigned long n) {
   unsigned long i = blockIdx.y * blockDim.y + threadIdx.y;
   unsigned long k;
   float sum = 0.0f;
-  if (i < n || j < n) {
-    for(k=0; k<n; k++) {
-      sum += a[i*n+k] * b[k*n+j];
-    }
-    c[i*n+j] = sum;
+  if (i >= n || j >= n)
+    return;
+    
+  for(k=0; k<n; k++) {
+    sum += a[i*n+k] * b[k*n+j];
   }
+  c[i*n+j] = sum;
 }
 
-void MatrixMultiplication_openmp(float * a,float * b, float * c, unsigned long N)
+void MatrixMultiplication_openmp(float *a,float *b, float *c, unsigned long N)
 {
   int i, j, k ;
   int chunk = N/4;
@@ -103,7 +104,7 @@ int main(int argc, char *argv[]) {
   cudaMallocHost(&h_a, numbyte);
   cudaMallocHost(&h_b, numbyte);
   cudaMallocHost(&h_c, numbyte);
-  c_CPU = new float[numbyte];
+  c_CPU = new float[numdata_h * numdata_h];
   
   for (unsigned long i = 0; i < numdata_h; i++) {
     for (unsigned long j = 0; j < numdata_h; j++) {
