@@ -172,10 +172,10 @@ void CalcOnFPGA::Verify(
     const int VAL_SIZE
 	  )
 {
-	float x[N], r[N], p[N], y[N], alfa, beta;
-	float VAL_local[VAL_SIZE];
-	int COL_IND_local[VAL_SIZE], ROW_PTR_local[N + 1];
-	float temp_sum, temp_pap, temp_rr1, temp_rr2, norm_r;
+	float *x = new float[N], *r = new float[N], *p = new float[N], *y = new float[N], alfa, beta;
+	float *VAL_local = new float[VAL_SIZE];
+	int *COL_IND_local = new int[VAL_SIZE], *ROW_PTR_local = new int[N + 1];
+	float temp_sum, temp_pap, temp_rr1, temp_rr2;
   bool error = false;
 
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
