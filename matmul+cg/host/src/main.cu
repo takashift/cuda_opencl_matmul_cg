@@ -5,17 +5,6 @@
 #include <chrono>
 #include "calc_on_fpga.h"
 
-// static const int numthread = 256;
-
-// __global__
-// void vecadd(float *a, float *b, float *c, int n) {
-//   int i = blockIdx.x * blockDim.x + threadIdx.x;
-//   int j = blockIdx.y * blockDim.y + threadIdx.y;
-//   if (i < n || j < n) {
-//     c[i*n+j] += a[i*n+k] * b[k*n+j];
-//   }
-// }
-
 int main(int argc, char *argv[]) {
   // check command line arguments
   ///////////////////////////////////////////
@@ -67,11 +56,9 @@ int main(int argc, char *argv[]) {
 
   // main routine
   ///////////////////////////////////////////
-  // const int numblock = (numdata_h % numthread) ? (numdata_h/numthread) + 1 : (numdata_h/numthread);
   
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
-  // clWaitForEvents(1, &calc_on_fpga.kernel_event);
   calc_on_fpga.SendDatatoFPGA(N, VAL_SIZE, VAL, COL_IND, ROW_PTR, B);
   calc_on_fpga.Exec(global_item_size, local_item_size);  // kernel running
   // getting the computation results
@@ -88,15 +75,7 @@ int main(int argc, char *argv[]) {
     
   // cleanup
   ///////////////////////////////////////////
-  // cudaFreeHost(h_a);
-  // cudaFreeHost(h_b);
-  // cudaFreeHost(h_c);
-  // cudaFree(d_a);
-  // cudaFree(d_b);
-  // cudaFree(d_c);
-  // for (int stm = 0; stm < numstream; ++stm) {
-  //   cudaStreamDestroy(stream[stm]);
-  // }
+
 
   delete[] FPGA_calc_result;
   

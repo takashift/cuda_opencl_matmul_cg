@@ -259,8 +259,8 @@ void CalcOnFPGA::Verify(
   if (error == N) {
     std::cout << std::string(30, '-') << std::endl;
     std::cout << "FPGA Verification: PASS" << std::endl;
-    std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << " msec" << std::endl;
   } else {
     std::cout << "Error! FPGA Verification failed..." << error << std::endl;
   }
+  std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end-start).count() << " usec" << std::endl;
 }
