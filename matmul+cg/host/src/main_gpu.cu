@@ -24,7 +24,6 @@ void MatrixMultiplication_openmp(float * a,float * b, float * c, unsigned long N
   int i, j, k ;
   int chunk = N/4;
 
-
 #pragma omp parallel shared(a,b,c,chunk) private(i,j,k)
   {
 #ifdef _OPENMP
@@ -51,7 +50,9 @@ void verify(float *h_c, float *c_CPU, unsigned long numdata_h) {
   double rel_err = 0.0;
 
   #pragma omp parallel for
-  for (int i=0; i<numdata_h*numdata_h; i++){
+  for (unsigned long i=0; i<numdata_h*numdata_h; i++){
+    std::cout << c_CPU[i] << "(CPU) "<< std::end;
+    std::cout << h_c[i] << "(GPU) "<< std::end;
     cpu_sum += (double)c_CPU[i]*c_CPU[i];
     gpu_sum += (double)h_c[i]*h_c[i];
   }
