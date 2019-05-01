@@ -100,6 +100,7 @@ int main(int argc, char *argv[]) {
   cudaMallocHost(&h_a, numbyte);
   cudaMallocHost(&h_b, numbyte);
   cudaMallocHost(&h_c, numbyte);
+  c_CPU = new float[numbyte];
   
   for (unsigned long i = 0; i < numdata_h; i++) {
     for (unsigned long j = 0; j < numdata_h; j++) {
@@ -136,6 +137,7 @@ int main(int argc, char *argv[]) {
   ///////////////////////////////////////////
   MatrixMultiplication_openmp(h_a, h_b, c_CPU, numdata_h);
 
+  verify(h_c, c_CPU, numdata_h);
 
     std::cout << std::string(30, '-') << std::endl;
     std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end-start).count() << " usec" << std::endl;
