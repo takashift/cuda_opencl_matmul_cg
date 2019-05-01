@@ -44,6 +44,36 @@ void MatrixMultiplication_openmp(float * a,float * b, float * c, unsigned long N
   }
 }
 
+void verify(float *h_c, float *c_CPU, unsigned long numdata_h) {
+  double cpu_sum = 0.0;
+  double gpu_sum = 0.0;
+  double rel_err = 0.0;
+
+  for (int i=0; i<numdata_h*numdata_h; i++){
+    cpu_sum += (double)c_CPU[i]*c_CPU[i];
+    gpu_sum += (double)h_c[i]*h_c[i];
+  }
+
+  cpu_sum = sqrt(cpu_sum);
+  gpu_sum = sqrt(gpu_sum);
+  if( cpu_sum > gpu_sum ) {
+    rel_err = (cpu_sum-gpu_sum)/cpu_sum;
+  } else {
+    rel_err = (gpu_sum-cpu_sum)/cpu_sum;
+  }
+
+  if(rel_err < 1e-6)
+  {
+      printf("Verification Successful err = %e\n", rel_err);
+  }
+  else
+  {
+      printf("Verification Fail err = %e\n", rel_err);
+  }
+  printf("ResultGPU = %lf\n", gpu_sum);
+  printf("ResultCPU = %lf\n", cpu_sum);
+} 
+
 int main(int argc, char *argv[]) {
   // check command line arguments
   ///////////////////////////////////////////
@@ -105,33 +135,7 @@ int main(int argc, char *argv[]) {
   // verification
   ///////////////////////////////////////////
   MatrixMultiplication_openmp(h_a, h_b, c_CPU, numdata_h);
-  double cpu_sum = 0.0;
-  double gpu_sum = 0.0;
-  double rel_err = 0.0;
 
-  for (int i=0; i<numdata_h*numdata_h; i++){
-    cpu_sum += (double)c_CPU[i]*c_CPU[i];
-    gpu_sum += (double)h_c[i]*h_c[i];
-  }
-
-  cpu_sum = sqrt(cpu_sum);
-  gpu_sum = sqrt(gpu_sum);
-  if( cpu_sum > gpu_sum ) {
-    rel_err = (cpu_sum-gpu_sum)/cpu_sum;
-  } else {
-    rel_err = (gpu_sum-cpu_sum)/cpu_sum;
-  }
-
-  if(rel_err < 1e-6)
-  {
-      printf("Verification Successful err = %e\n", rel_err);
-  }
-  else
-  {
-      printf("Verification Fail err = %e\n", rel_err);
-  }
-  printf("ResultGPU = %lf\n", gpu_sum);
-  printf("ResultCPU = %lf\n", cpu_sum);
 
     std::cout << std::string(30, '-') << std::endl;
     std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end-start).count() << " usec" << std::endl;
