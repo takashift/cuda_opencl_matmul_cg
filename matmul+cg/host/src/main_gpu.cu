@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
 
 
     std::cout << std::string(30, '-') << std::endl;
-    std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << " msec" << std::endl;
+    std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end-start).count() << " usec" << std::endl;
     
   // cleanup
   ///////////////////////////////////////////
