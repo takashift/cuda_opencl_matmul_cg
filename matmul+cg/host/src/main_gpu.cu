@@ -51,8 +51,8 @@ void verify(float *h_c, float *c_CPU, unsigned long numdata_h) {
 
   #pragma omp parallel for
   for (unsigned long i=0; i<numdata_h*numdata_h; i++){
-    std::cout << c_CPU[i] << "(CPU) "<< std::end;
-    std::cout << h_c[i] << "(GPU) "<< std::end;
+    // std::cout << c_CPU[i] << "(CPU) " << std::endl;
+    // std::cout << h_c[i] << "(GPU) " << std::endl;
     cpu_sum += (double)c_CPU[i]*c_CPU[i];
     gpu_sum += (double)h_c[i]*h_c[i];
   }
@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
   
   for (unsigned long i = 0; i < numdata_h; i++) {
     for (unsigned long j = 0; j < numdata_h; j++) {
-      h_a[i*numdata_h+j] = 0.0f; //(j+1)/2*0.0001f;
+      h_a[i*numdata_h+j] = (j+1)/2*0.0001f;
       h_b[i*numdata_h+j] = 0.5f;
       h_c[i*numdata_h+j] = 0.0f;
       c_CPU[i*numdata_h+j] = 0.0f;
