@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
   /***** GPU *****/
   static const int numthread = 256;  
   const unsigned long numblock = (numdata_h % numthread) ? (numdata_h/numthread) + 1 : (numdata_h/numthread);
-  float *h_a, *h_b, *h_c, c_CPU;
+  float *h_a, *h_b, *h_c, *c_CPU;
 
   cudaMallocHost(&h_a, numbyte);
   cudaMallocHost(&h_b, numbyte);
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
   double gpu_sum = 0.0;
   double rel_err = 0.0;
 
-  for (i=0; i<M*N; i++){
+  for (int i=0; i<numdata_h*numdata_h; i++){
     cpu_sum += (double)c_CPU[i]*c_CPU[i];
     gpu_sum += (double)h_c[i]*h_c[i];
   }
