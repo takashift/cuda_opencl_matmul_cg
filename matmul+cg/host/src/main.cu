@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
   posix_memalign((void **)&B, 64, N * sizeof(float));
 
   for(int i=0; i<VAL_SIZE; i++) {
-    VAL[i] = (i+1) * 50000.0f;
+    VAL[i] = (i+1) * 50000.0f; // (i+1) * 1000000.0;
     COL_IND[i] = i;
   }
   for(int j=0; j<N; j++) {
