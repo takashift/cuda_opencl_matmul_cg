@@ -58,10 +58,10 @@ int main(int argc, char *argv[]) {
   }
   for(int j=0; j<N; j++) {
     // FPGA_calc_result[j] = 0;
-    ROW_PTR[j] = j*N+j;
+    ROW_PTR[j] = j;
     B[j] = j/2 - 0.0f; // x=0.0; b - Ax
   }
-  ROW_PTR[N] = N*N+N;
+  ROW_PTR[N] = N;
 
   calc_on_fpga.InitOpenCL(name, N, K, VAL_SIZE, global_item_size, local_item_size);
 
