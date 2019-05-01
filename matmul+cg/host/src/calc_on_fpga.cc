@@ -172,11 +172,16 @@ void CalcOnFPGA::Verify(
     int VAL_SIZE
 	  )
 {
-	float *x = new float[N], *r = new float[N], *p = new float[N], *y = new float[N], alfa, beta;
-	float *VAL_local = new float[VAL_SIZE];
-	int *COL_IND_local = new int[VAL_SIZE], *ROW_PTR_local = new int[N + 1];
+	// float *x = new float[N], *r = new float[N], *p = new float[N], *y = new float[N], alfa, beta;
+	// float *VAL_local = new float[VAL_SIZE];
+	// int *COL_IND_local = new int[VAL_SIZE], *ROW_PTR_local = new int[N + 1];
+	// float temp_sum, temp_pap, temp_rr1, temp_rr2;
+  // int error = N;
+
+	float x[N], r[N], p[N], y[N], alfa, beta;
+	float VAL_local[VAL_SIZE];
+	int COL_IND_local[VAL_SIZE], ROW_PTR_local[N + 1];
 	float temp_sum, temp_pap, temp_rr1, temp_rr2;
-  int error = N;
 
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
@@ -227,6 +232,7 @@ void CalcOnFPGA::Verify(
   std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
 
 	for(int j = 0; j < N; j++){
+    td::cout << "FPGA" << FPGA_calc_result[j] << ", CPU"<< x[j] << std::endl;
 		if(FPGA_calc_result[j] != x[j]) {
       error = j;
       break;
