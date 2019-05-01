@@ -227,7 +227,10 @@ void CalcOnFPGA::Verify(
   std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
 
 	for(int j = 0; j < N; j++){
-		if(FPGA_calc_result[j] != x[j]) error = j;
+		if(FPGA_calc_result[j] != x[j]) {
+      error = j;
+      break;
+    }
 	}
 
   if (error == N) {
