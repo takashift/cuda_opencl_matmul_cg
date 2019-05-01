@@ -176,6 +176,7 @@ void CalcOnFPGA::Verify(
 	float VAL_local[VAL_SIZE];
 	int COL_IND_local[VAL_SIZE], ROW_PTR_local[N + 1];
 	float temp_sum, temp_pap, temp_rr1, temp_rr2, norm_r;
+  bool error = false;
 
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
