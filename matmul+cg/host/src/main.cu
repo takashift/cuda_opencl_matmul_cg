@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
   posix_memalign((void **)&FPGA_calc_result, 64, N * sizeof(float));
   posix_memalign((void **)&VAL, 64, VAL_SIZE * sizeof(float));
   posix_memalign((void **)&COL_IND, 64, VAL_SIZE * sizeof(int));
-  posix_memalign((void **)&ROW_PTR, 64, N * sizeof(int));
+  posix_memalign((void **)&ROW_PTR, 64, N+1 * sizeof(int));
   posix_memalign((void **)&B, 64, N * sizeof(float));
 
   for(int i=0; i<VAL_SIZE; i++) {
@@ -61,6 +61,7 @@ int main(int argc, char *argv[]) {
     ROW_PTR[j] = j*N+j;
     B[j] = j/2 - 0.0f; // x=0.0; b - Ax
   }
+  ROW_PTR[N] = N*N+N;
 
   calc_on_fpga.InitOpenCL(name, N, K, VAL_SIZE, global_item_size, local_item_size);
 
