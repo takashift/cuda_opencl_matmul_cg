@@ -176,7 +176,7 @@ void CalcOnFPGA::Verify(
 	float *VAL_local = new float[VAL_SIZE];
 	int *COL_IND_local = new int[VAL_SIZE], *ROW_PTR_local = new int[N + 1];
 	float temp_sum, temp_pap, temp_rr1, temp_rr2;
-  bool error = false;
+  int error = N;
 
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
@@ -227,14 +227,14 @@ void CalcOnFPGA::Verify(
   std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
 
 	for(int j = 0; j < N; j++){
-		if(FPGA_calc_result[j] != x[j]) error = true;
+		if(FPGA_calc_result[j] != x[j]) error = j;
 	}
 
-  if (!error) {
+  if (error == N) {
     std::cout << std::string(30, '-') << std::endl;
     std::cout << "FPGA Verification: PASS" << std::endl;
     std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << " msec" << std::endl;
   } else {
-    std::cout << "Error! FPGA Verification failed..." << std::endl;
+    std::cout << "Error! FPGA Verification failed..." << error << std::endl;
   }
 }
