@@ -78,12 +78,12 @@ int main(int argc, char *argv[]) {
 
   std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
   
+  std::cout << std::string(30, '-') << std::endl;
+  std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::seconds>(end-start).count() << " sec" << std::endl;
+
   // verification
   ///////////////////////////////////////////
-
-
-    std::cout << std::string(30, '-') << std::endl;
-    std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::seconds>(end-start).count() << " sec" << std::endl;
+  calc_on_fpga.Verify(FPGA_calc_result, VAL, COL_IND, ROW_PTR, B, N, K, VAL_SIZE);
     
   // cleanup
   ///////////////////////////////////////////

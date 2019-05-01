@@ -161,36 +161,79 @@ void CalcOnFPGA::RecvDatafromFPGA(const size_t numstream,
 
 
 /********************************************************************/
-void CalcOnFPGA::Verify(const size_t numdata_d,
-                        const size_t numstream,
-                        const size_t numtry, 
-                        float        *FPGA_calc_result) {
+void CalcOnFPGA::Verify(
+    float* FPGA_calc_result,
+    const* float VAL,
+    const* int COL_IND,
+    const* int ROW_PTR,
+    const* float B,
+    const int N,
+    const int K,
+    const int VAL_SIZE
+	  )
+{
+	float x[N], r[N], p[N], y[N], alfa, beta;
+	float VAL_local[VAL_SIZE];
+	int COL_IND_local[VAL_SIZE], ROW_PTR_local[N + 1];
+	float temp_sum, temp_pap, temp_rr1, temp_rr2, norm_r;
 
-  std::cout << std::endl;
+  std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
-  // error check
-  bool error = false;
-#pragma omp parallel for
-  for (size_t i = 0; i < numstream; ++i) {
-    const int   thread_id               = omp_get_thread_num();
-    const float c0                      = 3.0f + static_cast<float>(thread_id * 2);
-    const float expected_reduction_rslt = std::pow((2*1+1), (numtry-1)) * c0 * numdata_d;
-    if (FPGA_calc_result[i] != expected_reduction_rslt) error = true;
-  }
+	temp_rr1 = 0.0f;
+	for(int i = 0; i < N; i++){
+		ROW_PTR_local[i] = ROW_PTR[i];
+		x[i] = 0.0f;
+		r[i] = B[i];
+		p[i] = B[i];
+		temp_rr1 += r[i] * r[i];
+	}
+	ROW_PTR_local[N] = ROW_PTR[N];
+
+	for(int i = 0; i < VAL_SIZE; i++){
+		COL_IND_local[i] = COL_IND[i];
+		VAL_local[i] = VAL[i];
+	}
+
+	for(int i = 0; i < K; i++){
+		temp_pap = 0.0f;
+		for(int j = 0; j < N; j++){
+			temp_sum = 0.0f;
+			for(int l = ROW_PTR_local[j]; l < ROW_PTR_local[j + 1]; l++){
+				temp_sum += p[COL_IND_local[l]] * VAL_local[l];
+			}
+			y[j] = temp_sum;
+			temp_pap += p[j] * temp_sum;
+		}
+
+		alfa = temp_rr1 / temp_pap;
+
+		temp_rr2 = 0.0f;
+		for(int j = 0; j < N; j++){
+			x[j] += alfa * p[j];
+			r[j] -= alfa * y[j];
+			temp_rr2 += r[j] * r[j];
+		}
+
+		beta = temp_rr2 / temp_rr1;
+
+		for(int j = 0; j < N; j++){
+			p[j] = r[j] + beta * p[j];
+		}
+		temp_rr1 = temp_rr2;
+
+	}
+
+  std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+
+	for(int j = 0; j < N; j++){
+		if(FPGA_calc_result[j] != x[j]) error = true;
+	}
 
   if (!error) {
     std::cout << std::string(30, '-') << std::endl;
     std::cout << "FPGA Verification: PASS" << std::endl;
+    std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << " msec" << std::endl;
   } else {
     std::cout << "Error! FPGA Verification failed..." << std::endl;
-    for (size_t i = 0; i < numstream; ++i) {
-      const float c0                      = 3.0f + static_cast<float>(i * 2);
-      const float expected_reduction_rslt = std::pow((2*1+1), (numtry-1)) * c0 * numdata_d;
-      if (FPGA_calc_result[i] != expected_reduction_rslt) {
-        std::cout << "FPGA_calc_result[" << i << "]: " << std::fixed << FPGA_calc_result[i];
-        std::cout << ", expected: " << expected_reduction_rslt << std::endl;
-        break;
-      }
-    }
   }
 }

@@ -35,15 +35,20 @@ class CalcOnFPGA {
             const size_t *local_item_size);
   
   void RecvDatafromFPGA(const size_t numstream,
-                        float *FPGA_calc_rslt_list);
+                        float *FPGA_calc_result);
                         // aocl_utils::scoped_aligned_ptr<float> &FPGA_calc_rslt_list);
   
-  void Verify(const size_t numdata_d, 
-              const size_t numstream,
-              const size_t numtry, 
-              float *FPGA_calc_rslt_list);
+  void Verify(
+    float* FPGA_calc_result,
+    const* float VAL,
+    const* int COL_IND,
+    const* int ROW_PTR,
+    const* float B,
+    const int N,
+    const int K,
+    const int VAL_SIZE);
               // aocl_utils::scoped_aligned_ptr<float> &FPGA_calc_rslt_list);
-  
+
   cl_event         kernel_event;
  private:
   cl_context       context;
