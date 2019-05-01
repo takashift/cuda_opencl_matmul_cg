@@ -6,6 +6,7 @@
 #include <cmath>
 #include <omp.h>
 #include <chrono>
+// #include <fenv.h>
 
 /********************************************************************/
 CalcOnFPGA::CalcOnFPGA() {
@@ -230,6 +231,22 @@ void CalcOnFPGA::Verify(
 	}
 
   std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+
+// if (fetestexcept(FE_INVALID)) {
+//    puts("浮動小数点例外が発生しました");
+// }
+// if (fetestexcept(FE_DIVBYZERO)) {
+//    puts("ゼロ除算が発生しました");
+// }
+// if (fetestexcept(FE_OVERFLOW)) {
+//    puts("オーバーフローが発生しました");
+// }
+// if (fetestexcept(FE_UNDERFLOW)) {
+//    puts("アンダーフローが発生しました");
+// }
+// if (fetestexcept(FE_INEXACT)) {
+//    puts("不正確な結果が発生しました");
+// }
 
 	for(int j = 0; j < N; j++){
     std::cout << "FPGA" << FPGA_calc_result[j] << ", CPU"<< x[j] << std::endl;

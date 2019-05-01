@@ -1,4 +1,4 @@
-#define BLOCK_SIZE 1000
+#define BLOCK_SIZE 10000
 #define V_SIZE 200000
 
 __kernel

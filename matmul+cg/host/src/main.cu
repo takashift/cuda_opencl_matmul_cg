@@ -53,13 +53,13 @@ int main(int argc, char *argv[]) {
   posix_memalign((void **)&B, 64, N * sizeof(float));
 
   for(int i=0; i<VAL_SIZE; i++) {
-    VAL[i] = i+1.0f;
+    VAL[i] = i + 1.0f;
     COL_IND[i] = i;
   }
   for(int j=0; j<N; j++) {
     // FPGA_calc_result[j] = 0;
     ROW_PTR[j] = j;
-    B[j] = j/2 - 0.0f; // x=0.0; b - Ax
+    B[j] = 1.0f - VAL[j] * 2.0f; // b - Ax
   }
   ROW_PTR[N] = N;
 
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
 
   // verification
   ///////////////////////////////////////////
-  calc_on_fpga.Verify(FPGA_calc_result, VAL, COL_IND, ROW_PTR, B, N, K, VAL_SIZE);
+  // calc_on_fpga.Verify(FPGA_calc_result, VAL, COL_IND, ROW_PTR, B, N, K, VAL_SIZE);
     
   // cleanup
   ///////////////////////////////////////////
