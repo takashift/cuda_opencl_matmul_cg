@@ -37,6 +37,7 @@ void MatrixMultiplication_openmp(float *a,float *b, float *c, unsigned long N)
   unsigned long i, j, k;
   int chunk;
   #ifdef _OPENMP
+  // omp_set_num_threads(numstream);
 	if(omp_get_thread_num() == 0) {
     printf("Number of OpenMP threads %d\n", omp_get_num_threads());
     chunk = N/omp_get_num_threads();  
@@ -58,28 +59,28 @@ void MatrixMultiplication_openmp(float *a,float *b, float *c, unsigned long N)
 }
 
 
-// void h_matrix_vector_malti(float *a,float *b, float *c, unsigned long N)
-// {
-//   unsigned long i, j;
-//   int chunk;
-//   #ifdef _OPENMP
-// 	if(omp_get_thread_num() == 0) {
-//     printf("Number of OpenMP threads %d\n", omp_get_num_threads());
-//     chunk = N/omp_get_num_threads();  
-// 	}
-//   #endif
+void h_matrix_vector_malti(float *a,float *b, float *c, unsigned long N)
+{
+  unsigned long i, j;
+  int chunk;
+  #ifdef _OPENMP
+	if(omp_get_thread_num() == 0) {
+    printf("Number of OpenMP threads %d\n", omp_get_num_threads());
+    chunk = N/omp_get_num_threads();  
+	}
+  #endif
 
-// #pragma omp parallel shared(a,b,c,chunk) private(i,j)
-//   {
-// #pragma omp for
-//     for (i=0; i<N; i++){
-//       float sum = 0.0 ;
-//       for (j=0; j<N; j++)
-//         sum += a[i*N+j]*b[j];
-//       c[i] = sum;
-//     }
-//   }
-// }
+#pragma omp parallel shared(a,b,c,chunk) private(i,j)
+  {
+#pragma omp for
+    for (i=0; i<N; i++){
+      float sum = 0.0 ;
+      for (j=0; j<N; j++)
+        sum += a[i*N+j]*b[j];
+      c[i] = sum;
+    }
+  }
+}
 
 void verify(float *h_c, float *c_CPU, unsigned long numdata_h) {
   double cpu_sum = 0.0;
@@ -87,7 +88,8 @@ void verify(float *h_c, float *c_CPU, unsigned long numdata_h) {
   double rel_err = 0.0;
 
   #pragma omp parallel for reduction(+:cpu_sum, gpu_sum)
-  for (unsigned long i=0; i<numdata_h*numdata_h; i++){
+  // for (unsigned long i=0; i<numdata_h*numdata_h; i++){
+  for (unsigned long i=0; i<numdata_h; i++){  // d_vec_b チェック
     // std::cout << c_CPU[i] << "(CPU) " << std::endl;
     // std::cout << h_c[i] << "(GPU) " << std::endl;
     cpu_sum += (double)c_CPU[i]*c_CPU[i];
@@ -141,6 +143,7 @@ int main(int argc, char *argv[]) {
   cudaMallocHost(&h_b, numbyte);
   cudaMallocHost(&h_c, numbyte);
   c_CPU = new float[numdata_h * numdata_h];
+  vec_b_CPU = new float[numdata_h * numdata_h];
   cudaMallocHost(&h_vec_mul, numdata_h*sizeof(float)); // h_vec_mul = new float[numdata_h];
   cudaMallocHost(&h_vec_b, numdata_h*sizeof(float)); // h_vec_b = new float[];
   
@@ -153,6 +156,7 @@ int main(int argc, char *argv[]) {
     }
     h_vec_b[i] = 0.0f;
     h_vec_mul[i] = 0.01f;
+    vec_b_CPU[i] = 0.0f;
   }
 
   // device memory settings
@@ -183,14 +187,15 @@ int main(int argc, char *argv[]) {
   std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
   
   cudaMemcpy(h_c, d_c, numbyte, cudaMemcpyDeviceToHost);
-  // h_matrix_vector_malti(h_c, h_vec_mul, h_vec_b, numdata_h);
 
 
   // verification
   ///////////////////////////////////////////
   MatrixMultiplication_openmp(h_a, h_b, c_CPU, numdata_h);
+  h_matrix_vector_malti(c_CPU, h_vec_mul, vec_b_CPU, numdata_h);
 
-  verify(h_c, c_CPU, numdata_h);
+  // verify(h_c, c_CPU, numdata_h);
+  verify(h_vec_b, vec_b_CPU, numdata_h);
 
     std::cout << std::string(30, '-') << std::endl;
     std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end-start).count() << " usec" << std::endl;
