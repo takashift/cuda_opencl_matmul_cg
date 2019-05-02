@@ -82,7 +82,7 @@ void h_matrix_vector_malti(float *a,float *b, float *c, int N)
   }
 }
 
-void verify(float *h_c, float *c_CPU, int N) {
+void verify_gpu(float *h_c, float *c_CPU, int N) {
   double cpu_sum = 0.0;
   double gpu_sum = 0.0;
   double rel_err = 0.0;
@@ -118,15 +118,14 @@ void verify(float *h_c, float *c_CPU, int N) {
 int main(int argc, char *argv[]) {
   // check command line arguments
   ///////////////////////////////////////////
-  if (argc == 1) { std::cout << "usage: ./host <name> <numdata_h> <numstream> <numtry>" << std::endl; exit(0); }
+  if (argc == 1) { std::cout << "usage: ./host <name> <numdata_h> <valsize> <numtry>" << std::endl; exit(0); }
   if (argc != 5) { std::cerr << "Error! The number of arguments is wrong."              << std::endl; exit(1); }
 
   const char *name     = argv[1];
   const int  numdata_h = std::stoull(std::string(argv[2]));
-  const int  numstream = std::stoull(std::string(argv[3]));
+  const int  valsize   = std::stoull(std::string(argv[3]));
   const int  numtry    = std::stoull(std::string(argv[4]));
   const int  numbyte   = numdata_h * sizeof(float); // this sample uses "float"
-  const int  numdata_d = (numdata_h/numstream);
 
   size_t global_item_size[3];
   size_t local_item_size[3];
@@ -162,8 +161,8 @@ int main(int argc, char *argv[]) {
   /***** FPGA *****/
   static CalcOnFPGA calc_on_fpga;
   int N = numdata_h;
+  int VAL_SIZE = valsize;
   int K = numtry;
-  int VAL_SIZE = numdata_h;
   float *FPGA_calc_result; // = new float[N];
   float *VAL;
   int *COL_IND;
@@ -197,7 +196,7 @@ int main(int argc, char *argv[]) {
   ///////////////////////////////////////////
   
   /***** GPU *****/
-  std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+  std::chrono::system_clock::time_point start_gpu = std::chrono::system_clock::now();
 
   cudaMemcpy(d_a, h_a, numbyte, cudaMemcpyHostToDevice);
   cudaMemcpy(d_b, h_b, numbyte, cudaMemcpyHostToDevice);
@@ -209,11 +208,10 @@ int main(int argc, char *argv[]) {
   
   cudaMemcpy(h_vec_b, d_vec_b, numdata_h*sizeof(float), cudaMemcpyDeviceToHost);
 
-  std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+  std::chrono::system_clock::time_point end_gpu = std::chrono::system_clock::now();
   
   cudaMemcpy(h_c, d_c, numbyte, cudaMemcpyDeviceToHost);
 
-  
   /***** FPGA *****/
   for(int j=0; j<N; ++j) {
     // FPGA_calc_result[j] = 0;
@@ -222,28 +220,28 @@ int main(int argc, char *argv[]) {
   }
   ROW_PTR[N] = N;
 
-  std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+  std::chrono::system_clock::time_point start_fpga = std::chrono::system_clock::now();
 
   calc_on_fpga.SendDatatoFPGA(N, VAL_SIZE, VAL, COL_IND, ROW_PTR, B);
   calc_on_fpga.Exec(global_item_size, local_item_size);  // kernel running
   // getting the computation results
   calc_on_fpga.RecvDatafromFPGA(N, FPGA_calc_result);
 
-  std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+  std::chrono::system_clock::time_point end_fpga = std::chrono::system_clock::now();
   
+  std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end_gpu-start_gpu).count() << " usec" << std::endl;
   std::cout << std::string(30, '-') << std::endl;
-  std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end-start).count() << " usec" << std::endl;
+
+  std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end_fpga-start_fpga).count() << " usec" << std::endl;
+  std::cout << std::string(30, '-') << std::endl;
 
   // verification
   ///////////////////////////////////////////
   MatrixMultiplication_openmp(h_a, h_b, c_CPU, numdata_h);    // 本番はコメントアウトして良い
   h_matrix_vector_malti(c_CPU, h_vec_mul, vec_b_CPU, numdata_h);    // 本番はコメントアウトして良い
 
-  // verify(h_c, c_CPU, numdata_h*numdata_h); // 行列積チェック
-  verify(h_vec_b, vec_b_CPU, numdata_h); // d_vec_b チェック
-
-  std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end-start).count() << " usec" << std::endl;
-  std::cout << std::string(30, '-') << std::endl;
+  // verify_gpu(h_c, c_CPU, numdata_h*numdata_h); // 行列積チェック
+  verify_gpu(h_vec_b, vec_b_CPU, numdata_h); // d_vec_b チェック
 
   calc_on_fpga.Verify(FPGA_calc_result, VAL, COL_IND, ROW_PTR, B, N, K, VAL_SIZE);
     

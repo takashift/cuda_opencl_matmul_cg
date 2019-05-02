@@ -72,8 +72,8 @@ LIBS := rt
 NAME      := cg
 # NUMDATA   := 1048576
 NUMDATA   := 1000
-NUMSTREAM := 1000
 NUMTRY    := 1000
+VALSIZE   := 1000
 
 
 # Settings of the OpenCL kernel code compilation
