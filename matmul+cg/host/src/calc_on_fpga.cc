@@ -187,7 +187,7 @@ void CalcOnFPGA::Verify(
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
 	temp_rr1 = 0.0f;
-	for(int i = 0; i < N; i++){
+	for(int i = 0; i < N; ++i){
 		ROW_PTR_local[i] = ROW_PTR[i];
 		x[i] = 0.0f;
 		r[i] = B[i];
@@ -196,14 +196,14 @@ void CalcOnFPGA::Verify(
 	}
 	ROW_PTR_local[N] = ROW_PTR[N];
 
-	for(int i = 0; i < VAL_SIZE; i++){
+	for(int i = 0; i < VAL_SIZE; ++i){
 		COL_IND_local[i] = COL_IND[i];
 		VAL_local[i] = VAL[i];
 	}
 
-	for(int i = 0; i < K; i++){
+	for(int i = 0; i < K; ++i){
 		temp_pap = 0.0f;
-		for(int j = 0; j < N; j++){
+		for(int j = 0; j < N; ++j){
 			temp_sum = 0.0f;
 			for(int l = ROW_PTR_local[j]; l < ROW_PTR_local[j + 1]; l++){
 				temp_sum += p[COL_IND_local[l]] * VAL_local[l];
@@ -215,7 +215,7 @@ void CalcOnFPGA::Verify(
 		alfa = temp_rr1 / temp_pap;
 
 		temp_rr2 = 0.0f;
-		for(int j = 0; j < N; j++){
+		for(int j = 0; j < N; ++j){
 			x[j] += alfa * p[j];
 			r[j] -= alfa * y[j];
 			temp_rr2 += r[j] * r[j];
@@ -223,7 +223,7 @@ void CalcOnFPGA::Verify(
 
 		beta = temp_rr2 / temp_rr1;
 
-		for(int j = 0; j < N; j++){
+		for(int j = 0; j < N; ++j){
 			p[j] = r[j] + beta * p[j];
 		}
 		temp_rr1 = temp_rr2;
@@ -248,7 +248,7 @@ void CalcOnFPGA::Verify(
 //    puts("不正確な結果が発生しました");
 // }
 
-	for(int j = 0; j < N; j++){
+	for(int j = 0; j < N; ++j){
     // std::cout << "FPGA" << FPGA_calc_result[j] << ", CPU"<< x[j] << std::endl;
 		if(FPGA_calc_result[j] != x[j]) {
       error = j;

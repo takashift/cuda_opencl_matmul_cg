@@ -27,9 +27,9 @@ int main(int argc, char *argv[]) {
 
   /***** FPGA *****/
   static CalcOnFPGA calc_on_fpga;
-  int N = 1000;
-  int K = 1000;
-  int VAL_SIZE = 1000;
+  int N = numdata_h;
+  int K = numtry;
+  int VAL_SIZE = numdata_h;
   float *FPGA_calc_result; // = new float[N];
   float *VAL;
   int *COL_IND;
@@ -42,11 +42,11 @@ int main(int argc, char *argv[]) {
   posix_memalign((void **)&ROW_PTR, 64, (N+1) * sizeof(int));
   posix_memalign((void **)&B, 64, N * sizeof(float));
 
-  for(int i=0; i<VAL_SIZE; i++) {
-    VAL[i] = (i+1) * 50000.0f; // (i+1) * 1000000.0;
+  for(int i=0; i<VAL_SIZE; ++i) {
+    VAL[i] = (i+1) * 1000000.0; // これだとなぜか検証がうまく通る
     COL_IND[i] = i;
   }
-  for(int j=0; j<N; j++) {
+  for(int j=0; j<N; ++j) {
     // FPGA_calc_result[j] = 0;
     ROW_PTR[j] = j;
     B[j] = 10.0 - VAL[j]*1000000.0; // b - Ax

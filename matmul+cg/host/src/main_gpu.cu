@@ -14,7 +14,7 @@ __global__ void matmul(float *a, float *b, float *c, unsigned long n) {
   if (i >= n || j >= n)
     return;
 
-  for(k=0; k<n; k++) {
+  for(k=0; k<n; ++k) {
     sum += a[i*n+k] * b[k*n+j];
   }
   c[i*n+j] = sum;
@@ -26,7 +26,7 @@ __global__ void matrix_vector_malti(float *a,float *b, float *c, unsigned long N
   unsigned long j;
   float sum = 0.0;
   if (i < N) {
-    for (j=0; j<N; j++)
+    for (j=0; j<N; ++j)
       sum += a[i*N+j] * b[j];
     c[i] = sum;
   }
@@ -47,10 +47,10 @@ void MatrixMultiplication_openmp(float *a,float *b, float *c, unsigned long N)
 #pragma omp parallel shared(a,b,c,chunk) private(i,j,k)
   {
 #pragma omp for
-    for (i=0; i<N; i++){
-      for (j=0; j<N; j++){
+    for (i=0; i<N; ++i){
+      for (j=0; j<N; ++j){
         float sum = 0.0 ;
-        for (k=0; k<N; k++)
+        for (k=0; k<N; ++k)
           sum += a[i*N+k] * b[k*N+j];
         c[i*N+j] = sum;
       }
@@ -73,9 +73,9 @@ void h_matrix_vector_malti(float *a,float *b, float *c, unsigned long N)
 #pragma omp parallel shared(a,b,c,chunk) private(i,j)
   {
 #pragma omp for
-    for (i=0; i<N; i++){
+    for (i=0; i<N; ++i){
       float sum = 0.0 ;
-      for (j=0; j<N; j++)
+      for (j=0; j<N; ++j)
         sum += a[i*N+j]*b[j];
       c[i] = sum;
     }
@@ -88,8 +88,8 @@ void verify(float *h_c, float *c_CPU, unsigned long numdata_h) {
   double rel_err = 0.0;
 
   #pragma omp parallel for reduction(+:cpu_sum, gpu_sum)
-  // for (unsigned long i=0; i<numdata_h*numdata_h; i++){
-  for (unsigned long i=0; i<numdata_h; i++){  // d_vec_b チェック
+  // for (unsigned long i=0; i<numdata_h*numdata_h; ++i){
+  for (unsigned long i=0; i<numdata_h; ++i){  // d_vec_b チェック
     // std::cout << c_CPU[i] << "(CPU) " << std::endl;
     // std::cout << h_c[i] << "(GPU) " << std::endl;
     cpu_sum += (double)c_CPU[i]*c_CPU[i];
@@ -147,8 +147,8 @@ int main(int argc, char *argv[]) {
   cudaMallocHost(&h_vec_mul, numdata_h*sizeof(float)); // h_vec_mul = new float[numdata_h];
   cudaMallocHost(&h_vec_b, numdata_h*sizeof(float)); // h_vec_b = new float[];
   
-  for (unsigned long i = 0; i < numdata_h; i++) {
-    for (unsigned long j = 0; j < numdata_h; j++) {
+  for (unsigned long i = 0; i < numdata_h; ++i) {
+    for (unsigned long j = 0; j < numdata_h; ++j) {
       h_a[i*numdata_h+j] = (j+1)/2*0.0001f;
       h_b[i*numdata_h+j] = 0.5f;
       h_c[i*numdata_h+j] = 0.0f;
