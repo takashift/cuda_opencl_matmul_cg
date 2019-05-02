@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
 
   cudaMallocHost(&h_a, numbyte);
   cudaMallocHost(&h_b, numbyte);
-  // cudaMallocHost(&h_c, numbyte);
+  cudaMallocHost(&h_c, numbyte);
   c_CPU = new float[numdata_h * numdata_h];
   cudaMallocHost(&h_vec_mul, numdata_h*sizeof(float)); // h_vec_mul = new float[numdata_h];
   cudaMallocHost(&h_vec_b, numdata_h*sizeof(float)); // h_vec_b = new float[];
