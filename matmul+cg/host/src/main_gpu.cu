@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
 
   // device memory settings
   ///////////////////////////////////////////
-  float *d_a, *d_b, *d_c, d_vec_mul, d_vec_b;
+  float *d_a, *d_b, *d_c, *d_vec_mul, *d_vec_b;
 
   cudaMalloc(&d_a, numbyte);
   cudaMalloc(&d_b, numbyte);
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
   cudaMemcpy(d_a, h_a, numbyte, cudaMemcpyHostToDevice);
   cudaMemcpy(d_b, h_b, numbyte, cudaMemcpyHostToDevice);
   cudaMemcpy(d_vec_mul, h_vec_mul, numdata_h*sizeof(float), cudaMemcpyHostToDevice);
-  cudaMemcpy(d_vec_b, h_vec_b, numdata_h*sizeof(float), cudaMemcpyHostToDevice);
+  // cudaMemcpy(d_vec_b, h_vec_b, numdata_h*sizeof(float), cudaMemcpyHostToDevice);
   
   matmul<<<dim3(numblock, numblock), dim3(numthread, numthread)>>>(d_a, d_b, d_c, numdata_h);
   matrix_vector_malti<<<dim3(numblock), dim3(numthread)>>>(d_c, d_vec_mul, d_vec_b, numdata_h);
