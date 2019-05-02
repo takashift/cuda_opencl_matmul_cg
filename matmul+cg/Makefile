@@ -72,7 +72,7 @@ LIBS := rt
 NAME      := cg
 # NUMDATA   := 1048576
 NUMDATA   := 1000
-NUMSTREAM := 4
+NUMSTREAM := 1000
 NUMTRY    := 1000
 
 
