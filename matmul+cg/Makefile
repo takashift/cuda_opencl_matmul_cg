@@ -72,8 +72,8 @@ LIBS := rt
 NAME      := cg
 # NUMDATA   := 1048576
 NUMDATA   := 1000
-NUMTRY    := 1000
 VALSIZE   := 1000
+NUMTRY    := 1000
 
 
 # Settings of the OpenCL kernel code compilation
@@ -111,16 +111,16 @@ $(TARGET_DIR):
 # Run or Debug
 ########################################################################
 run:
-	srun -p comq -w ppx00 $(TARGET_DIR)/$(TARGET) $(NAME) $(NUMDATA) $(NUMSTREAM) $(NUMTRY)
+	srun -p comq -w ppx00 $(TARGET_DIR)/$(TARGET) $(NAME) $(NUMDATA) $(VALSIZE) $(NUMTRY)
 
 emu:
-	srun -p comq -w ppx00 env CL_CONTEXT_EMULATOR_DEVICE_INTELFPGA=1 $(TARGET_DIR)/$(TARGET) $(NAME) $(NUMDATA) $(NUMSTREAM) $(NUMTRY)
+	srun -p comq -w ppx00 env CL_CONTEXT_EMULATOR_DEVICE_INTELFPGA=1 $(TARGET_DIR)/$(TARGET) $(NAME) $(NUMDATA) $(VALSIZE) $(NUMTRY)
 
 memcheck:
-	srun -p comq -w ppx00 env CL_CONTEXT_EMULATOR_DEVICE_INTELFPGA=1 valgrind -v --tool=memcheck --error-limit=no --leak-check=full --show-reachable=no --log-file=valgrind.log $(TARGET_DIR)/$(TARGET) $(NAME) $(NUMDATA) $(NUMSTREAM) $(NUMTRY)
+	srun -p comq -w ppx00 env CL_CONTEXT_EMULATOR_DEVICE_INTELFPGA=1 valgrind -v --tool=memcheck --error-limit=no --leak-check=full --show-reachable=no --log-file=valgrind.log $(TARGET_DIR)/$(TARGET) $(NAME) $(NUMDATA) $(VALSIZE) $(NUMTRY)
 
 debug:
-	srun -p comq -w ppx00 env CL_CONTEXT_EMULATOR_DEVICE_INTELFPGA=1 gdb --args $(TARGET_DIR)/$(TARGET) $(NAME) $(NUMDATA) $(NUMSTREAM) $(NUMTRY)
+	srun -p comq -w ppx00 env CL_CONTEXT_EMULATOR_DEVICE_INTELFPGA=1 gdb --args $(TARGET_DIR)/$(TARGET) $(NAME) $(NUMDATA) $(VALSIZE) $(NUMTRY)
 
 
 # Create FPGA configuration image data
