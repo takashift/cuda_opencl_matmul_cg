@@ -137,7 +137,7 @@ int main(int argc, char *argv[]) {
   /***** GPU *****/
   static const int numthread = 16;  
   const unsigned long numblock = (numdata_h % numthread) ? (numdata_h/numthread) + 1 : (numdata_h/numthread);
-  float *h_a, *h_b, *h_c, *c_CPU, *h_vec_b, *h_vec_mul;
+  float *h_a, *h_b, *h_c, *c_CPU, *h_vec_b, *h_vec_mul, *vec_b_CPU;
 
   cudaMallocHost(&h_a, numbyte);
   cudaMallocHost(&h_b, numbyte);
