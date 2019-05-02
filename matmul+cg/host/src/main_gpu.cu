@@ -82,14 +82,13 @@ void h_matrix_vector_malti(float *a,float *b, float *c, unsigned long N)
   }
 }
 
-void verify(float *h_c, float *c_CPU, unsigned long numdata_h) {
+void verify(float *h_c, float *c_CPU, unsigned long N) {
   double cpu_sum = 0.0;
   double gpu_sum = 0.0;
   double rel_err = 0.0;
 
   #pragma omp parallel for reduction(+:cpu_sum, gpu_sum)
-  // for (unsigned long i=0; i<numdata_h*numdata_h; ++i){
-  for (unsigned long i=0; i<numdata_h; ++i){  // d_vec_b チェック
+  for (unsigned long i=0; i<N; ++i){
     // std::cout << c_CPU[i] << "(CPU) " << std::endl;
     // std::cout << h_c[i] << "(GPU) " << std::endl;
     cpu_sum += (double)c_CPU[i]*c_CPU[i];
@@ -191,11 +190,11 @@ int main(int argc, char *argv[]) {
 
   // verification
   ///////////////////////////////////////////
-  MatrixMultiplication_openmp(h_a, h_b, c_CPU, numdata_h);
-  h_matrix_vector_malti(c_CPU, h_vec_mul, vec_b_CPU, numdata_h);
+  MatrixMultiplication_openmp(h_a, h_b, c_CPU, numdata_h);    // 本番はコメントアウトして良い
+  h_matrix_vector_malti(c_CPU, h_vec_mul, vec_b_CPU, numdata_h);    // 本番はコメントアウトして良い
 
-  // verify(h_c, c_CPU, numdata_h);
-  verify(h_vec_b, vec_b_CPU, numdata_h);
+  // verify(h_c, c_CPU, numdata_h*numdata_h); // 行列積チェック
+  verify(h_vec_b, vec_b_CPU, numdata_h); // d_vec_b チェック
 
     std::cout << std::string(30, '-') << std::endl;
     std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end-start).count() << " usec" << std::endl;
