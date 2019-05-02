@@ -182,7 +182,7 @@ void CalcOnFPGA::Verify(
 	float x[N], r[N], p[N], y[N], alfa, beta;
 	float VAL_local[VAL_SIZE];
 	int COL_IND_local[VAL_SIZE], ROW_PTR_local[N + 1];
-	float temp_sum, temp_pap, temp_rr1, temp_rr2, sum;
+	float temp_sum, temp_pap, temp_rr1, temp_rr2, sum = 0;
 
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
