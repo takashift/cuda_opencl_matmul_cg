@@ -182,7 +182,7 @@ void CalcOnFPGA::Verify(
 	float x[N], r[N], p[N], y[N], alfa, beta;
 	float VAL_local[VAL_SIZE];
 	int COL_IND_local[VAL_SIZE], ROW_PTR_local[N + 1];
-	float temp_sum, temp_pap, temp_rr1, temp_rr2;
+	float temp_sum, temp_pap, temp_rr1, temp_rr2, sum;
 
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
@@ -254,11 +254,13 @@ void CalcOnFPGA::Verify(
       error = j;
       break;
     }
+    sum += FPGA_calc_result[j];
 	}
 
   if (error == N) {
     std::cout << std::string(30, '-') << std::endl;
     std::cout << "FPGA Verification: PASS" << std::endl;
+    std::cout << "ResultFPGA = " << sum << std::endl;
   } else {
     std::cout << "Error! FPGA Verification failed..." << error << std::endl;
   }
