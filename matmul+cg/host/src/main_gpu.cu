@@ -25,7 +25,7 @@ __global__ void matrix_vector_malti(float *a,float *b, float *c, unsigned long N
   unsigned long i = blockIdx.x * blockDim.x + threadIdx.x; // 通し番号を得るための計算
   unsigned long j;
   float sum = 0.0;
-  for (i=0; i<N; i++){
+  if (i < N) {
     for (j=0; j<N; j++)
       sum += a[i*N+j] * b[j];
     c[i] = sum;
