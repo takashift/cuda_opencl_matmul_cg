@@ -127,6 +127,8 @@ int main(int argc, char *argv[]) {
   const int  numtry    = std::stoull(std::string(argv[4]));
   const unsigned long numbyte   = numdata_h * numdata_h * sizeof(float); // this sample uses "float"
 
+  std::cout << "numdata_h: " << numdata_h << ", valsize: " << valsize << ", numtry: " << numtry << std::endl;
+
   size_t global_item_size[3];
   size_t local_item_size[3];
   
@@ -229,7 +231,7 @@ int main(int argc, char *argv[]) {
 
   std::chrono::system_clock::time_point end_fpga = std::chrono::system_clock::now();
   
-  std::cout << "GPU elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end_gpu-start_gpu).count() << " usec" << std::endl;
+  std::cout << "GPU elapsed time:  " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end_gpu-start_gpu).count() << " usec" << std::endl;
   std::cout << std::string(30, '-') << std::endl;
 
   std::cout << "FPGA elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end_fpga-start_fpga).count() << " usec" << std::endl;
@@ -237,8 +239,8 @@ int main(int argc, char *argv[]) {
 
   // verification
   ///////////////////////////////////////////
-  MatrixMultiplication_openmp(h_a, h_b, c_CPU, numdata_h);    // 本番はコメントアウトして良い
-  h_matrix_vector_malti(c_CPU, h_vec_mul, vec_b_CPU, numdata_h);    // 本番はコメントアウトして良い
+  // MatrixMultiplication_openmp(h_a, h_b, c_CPU, numdata_h);    // 本番はコメントアウトして良い
+  // h_matrix_vector_malti(c_CPU, h_vec_mul, vec_b_CPU, numdata_h);    // 本番はコメントアウトして良い
 
   // verify_gpu(h_c, c_CPU, numdata_h*numdata_h); // 行列積チェック
   verify_gpu(h_vec_b, vec_b_CPU, numdata_h); // d_vec_b チェック

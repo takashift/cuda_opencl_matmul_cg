@@ -264,5 +264,5 @@ void CalcOnFPGA::Verify(
   } else {
     std::cout << "Error! FPGA Verification failed..." << error << std::endl;
   }
-  std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end-start).count() << " usec" << std::endl;
+  std::cout << "CG CPU elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end-start).count() << " usec" << std::endl;
 }
