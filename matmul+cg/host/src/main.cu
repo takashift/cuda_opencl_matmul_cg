@@ -82,13 +82,13 @@ void h_matrix_vector_malti(float *a,float *b, float *c, int N)
   }
 }
 
-void verify_gpu(float *h_c, float *c_CPU, int N) {
+void verify_gpu(float *h_c, float *c_CPU, unsigned long N) {
   double cpu_sum = 0.0;
   double gpu_sum = 0.0;
   double rel_err = 0.0;
 
   #pragma omp parallel for reduction(+:cpu_sum, gpu_sum)
-  for (int i=0; i<N; ++i){
+  for (unsigned long i=0; i<N; ++i){
     // std::cout << c_CPU[i] << "(CPU) " << std::endl;
     // std::cout << h_c[i] << "(GPU) " << std::endl;
     cpu_sum += (double)c_CPU[i]*c_CPU[i];
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
   const int  numdata_h = std::stoull(std::string(argv[2]));
   const int  valsize   = std::stoull(std::string(argv[3]));
   const int  numtry    = std::stoull(std::string(argv[4]));
-  const int  numbyte   = numdata_h * numdata_h * sizeof(float); // this sample uses "float"
+  const unsigned long numbyte   = numdata_h * numdata_h * sizeof(float); // this sample uses "float"
 
   size_t global_item_size[3];
   size_t local_item_size[3];
@@ -229,10 +229,10 @@ int main(int argc, char *argv[]) {
 
   std::chrono::system_clock::time_point end_fpga = std::chrono::system_clock::now();
   
-  std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end_gpu-start_gpu).count() << " usec" << std::endl;
+  std::cout << "GPU elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end_gpu-start_gpu).count() << " usec" << std::endl;
   std::cout << std::string(30, '-') << std::endl;
 
-  std::cout << "elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end_fpga-start_fpga).count() << " usec" << std::endl;
+  std::cout << "FPGA elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end_fpga-start_fpga).count() << " usec" << std::endl;
   std::cout << std::string(30, '-') << std::endl;
 
   // verification
