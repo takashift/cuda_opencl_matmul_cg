@@ -6,18 +6,18 @@
 #include <chrono>
 #include "calc_on_fpga.h"
 
-__global__ void matmul(float *a, float *b, float *c, int n) {
+__global__ void matmul(float *a, float *b, float *c, int N) {
   int j = blockIdx.x * blockDim.x + threadIdx.x; // 通し番号を得るための計算
   int i = blockIdx.y * blockDim.y + threadIdx.y;
   int k;
   float sum = 0.0f;
-  if (i >= n || j >= n)
+  if (i >= N || j >= N)
     return;
 
-  for(k=0; k<n; ++k) {
-    sum += a[i*n+k] * b[k*n+j];
+  for(k=0; k<N; ++k) {
+    sum += a[i*N+k] * b[k*N+j];
   }
-  c[i*n+j] = sum;
+  c[i*N+j] = sum;
 }
 
 __global__ void matrix_vector_malti(float *a,float *b, float *c, int N)
@@ -39,8 +39,8 @@ void MatrixMultiplication_openmp(float *a,float *b, float *c, int N)
   #ifdef _OPENMP
   // omp_set_num_threads(numstream);
 	if(omp_get_thread_num() == 0) {
-    printf("Number of OpenMP threads %d\n", omp_get_num_threads());
-    chunk = N/omp_get_num_threads();  
+    printf("Number of OpenMP threads %d\n", omp_get_max_threads());
+    chunk = N/omp_get_max_threads();  
 	}
   #endif
 
@@ -65,8 +65,8 @@ void h_matrix_vector_malti(float *a,float *b, float *c, int N)
   int chunk;
   #ifdef _OPENMP
 	if(omp_get_thread_num() == 0) {
-    printf("Number of OpenMP threads %d\n", omp_get_num_threads());
-    chunk = N/omp_get_num_threads();  
+    printf("Number of OpenMP threads %d\n", omp_get_max_threads());
+    chunk = N/omp_get_max_threads();  
 	}
   #endif
 
@@ -118,7 +118,7 @@ void verify_gpu(float *h_c, float *c_CPU, unsigned long N) {
 int main(int argc, char *argv[]) {
   // check command line arguments
   ///////////////////////////////////////////
-  if (argc == 1) { std::cout << "usage: ./host <name> <numdata_h> <valsize> <numtry>" << std::endl; exit(0); }
+  if (argc == 1) { std::cout << "usage: ./host <name> <numdata_h> <valsize> <numtry>"   << std::endl; exit(0); }
   if (argc != 5) { std::cerr << "Error! The number of arguments is wrong."              << std::endl; exit(1); }
 
   const char *name     = argv[1];
@@ -145,8 +145,8 @@ int main(int argc, char *argv[]) {
   cudaMallocHost(&h_c, numbyte);
   c_CPU = new float[numdata_h * numdata_h];
   vec_b_CPU = new float[numdata_h];
-  cudaMallocHost(&h_vec_mul, numdata_h*sizeof(float)); // h_vec_mul = new float[numdata_h];
-  cudaMallocHost(&h_vec_b, numdata_h*sizeof(float)); // h_vec_b = new float[];
+  cudaMallocHost(&h_vec_mul, numdata_h*sizeof(float));
+  cudaMallocHost(&h_vec_b, numdata_h*sizeof(float));
   
   for (int i = 0; i < numdata_h; ++i) {
     for (int j = 0; j < numdata_h; ++j) {
@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
   int N = numdata_h;
   int VAL_SIZE = valsize;
   int K = numtry;
-  float *FPGA_calc_result; // = new float[N];
+  float *FPGA_calc_result; // X_result
   float *VAL;
   int *COL_IND;
   int *ROW_PTR;
@@ -231,7 +231,7 @@ int main(int argc, char *argv[]) {
 
   std::chrono::system_clock::time_point end_fpga = std::chrono::system_clock::now();
   
-  std::cout << "GPU elapsed time:  " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end_gpu-start_gpu).count() << " usec" << std::endl;
+  std::cout << "GPU  elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end_gpu-start_gpu).count() << " usec" << std::endl;
   std::cout << std::string(30, '-') << std::endl;
 
   std::cout << "FPGA elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end_fpga-start_fpga).count() << " usec" << std::endl;
