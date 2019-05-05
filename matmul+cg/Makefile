@@ -42,7 +42,7 @@ AOCL_LINK_CONFIG := $(shell aocl link-config )
 
 # Compilation flags
 CXXFLAGS  := -O3 -Wall -Wextra -g -std=c++11 -fopenmp
-NVCCFLAGS := -O3 -g -std=c++11 -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -fopenmp
+NVCCFLAGS := -O3 --generate-code arch=compute_60,code=sm_60 -g -std=c++11 -Xcompiler -Wall -Xcompiler -Wextra -Xcompiler -fopenmp
 NVCC_NONSUPPORTED_FLAGS := -Wl,--no-as-needed
 
 # Compiler

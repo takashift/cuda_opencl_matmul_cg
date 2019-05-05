@@ -205,7 +205,7 @@ void CalcOnFPGA::Verify(
 		temp_pap = 0.0f;
 		for(int j = 0; j < N; ++j){
 			temp_sum = 0.0f;
-			for(int l = ROW_PTR_local[j]; l < ROW_PTR_local[j + 1]; l++){
+			for(int l = ROW_PTR_local[j]; l < ROW_PTR_local[j + 1]; ++l){
 				temp_sum += p[COL_IND_local[l]] * VAL_local[l];
 			}
 			y[j] = temp_sum;

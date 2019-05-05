@@ -17,7 +17,7 @@ void cg(
 	float x[BLOCK_SIZE], r[BLOCK_SIZE], p[BLOCK_SIZE], y[BLOCK_SIZE], alfa, beta;
 	float VAL_local[V_SIZE];
 	int COL_IND_local[V_SIZE], ROW_PTR_local[BLOCK_SIZE + 1];
-	float temp_sum=0.0, temp_pap, temp_rr1, temp_rr2;
+	float temp_sum=0.0f, temp_pap, temp_rr1, temp_rr2;
 
 	temp_rr1 = 0.0f;
 #pragma unroll
