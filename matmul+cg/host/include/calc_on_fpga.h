@@ -1,7 +1,3 @@
-/******************************************************************************/
-/* A sample program for reducing GPU computation results                      */
-/*                                                Ryohei Kobayashi 2018.06.12 */
-/******************************************************************************/
 #ifndef CALC_ON_FPGA_H_
 #define CALC_ON_FPGA_H_
 

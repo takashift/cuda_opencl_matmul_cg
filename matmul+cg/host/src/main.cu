@@ -4,6 +4,9 @@
 #include <vector>
 #include <omp.h>
 #include <chrono>
+#include <bebop/smc/sparse_matrix.h>
+#include <bebop/smc/sparse_matrix_ops.h>
+#include <bebop/smc/csr_matrix.h>
 #include "calc_on_fpga.h"
 
 __global__ void matmul(float *a, float *b, float *c, int N) {
@@ -116,14 +119,29 @@ void verify_gpu(float *h_c, float *c_CPU, unsigned long N) {
 } 
 
 int main(int argc, char *argv[]) {
+	struct sparse_matrix_t* A = load_sparse_matrix(MATRIX_MARKET, "bcsstk17.mtx");
+	assert(A != NULL);
+	int errcode = sparse_matrix_convert(A, CSR);
+	if (errcode != 0)
+	{
+		fprintf(stderr, "*** Conversion failed! ***\n");
+		// Note: Don't call destroy_sparse_matrix (A) unless you 
+		// can call free on val, ind and ptr.
+		free(A);
+		exit(EXIT_FAILURE);
+	}
+
+
   // check command line arguments
   ///////////////////////////////////////////
   if (argc == 1) { std::cout << "usage: ./host <name> <numdata_h> <valsize> <numtry>"   << std::endl; exit(0); }
   if (argc != 5) { std::cerr << "Error! The number of arguments is wrong."              << std::endl; exit(1); }
 
   const char *name     = argv[1];
-  const int  numdata_h = std::stoull(std::string(argv[2]));
-  const int  valsize   = std::stoull(std::string(argv[3]));
+  const int  numdata_h = csr_matrix_num_rows(A)-1; // std::stoull(std::string(argv[2]));
+	int N = numdata_h;
+  const int  valsize   = csr_matrix_num_cols(A);
+	int VAL_SIZE = valsize;
   const int  numtry    = std::stoull(std::string(argv[4]));
   const unsigned long numbyte   = numdata_h * numdata_h * sizeof(float); // this sample uses "float"
 
@@ -161,10 +179,8 @@ int main(int argc, char *argv[]) {
   }
 
   /***** FPGA *****/
+	int K = numtry;
   static CalcOnFPGA calc_on_fpga;
-  int N = numdata_h;
-  int VAL_SIZE = valsize;
-  int K = numtry;
   float *FPGA_calc_result; // X_result
   float *VAL;
   int *COL_IND;
@@ -177,10 +193,11 @@ int main(int argc, char *argv[]) {
   posix_memalign((void **)&ROW_PTR, 64, (N+1) * sizeof(int));
   posix_memalign((void **)&B, 64, N * sizeof(float));
 
-  for(int i=0; i<VAL_SIZE; ++i) {
-    VAL[i] = (i+1) * 1000000.0; // これだとなぜか検証がうまく通る
-    COL_IND[i] = i;
-  }
+	for (int i = 0; i < VAL_SIZE; ++i)
+	{
+		VAL[i] = A.values[i];
+		COL_IND[i] = A.colidx[i];
+	}
 
   calc_on_fpga.InitOpenCL(name, N, K, VAL_SIZE, global_item_size, local_item_size);
 
@@ -217,8 +234,8 @@ int main(int argc, char *argv[]) {
   /***** FPGA *****/
   for(int j=0; j<N; ++j) {
     // FPGA_calc_result[j] = 0;
-    ROW_PTR[j] = j;
-    B[j] = h_vec_b[j] - VAL[j]*1000000.0; // b - Ax
+		ROW_PTR[j] = A.rowptr[j];
+		B[j] = h_vec_b[j] - VAL[j] * 1; //000000.0; // b - Ax
   }
   ROW_PTR[N] = N;
 
@@ -259,6 +276,8 @@ int main(int argc, char *argv[]) {
   cudaFree(d_c);
   cudaFree(d_vec_b);
   cudaFree(d_vec_b);
+
+  destroy_csr_matrix(A);
 
   delete[] FPGA_calc_result;
   
