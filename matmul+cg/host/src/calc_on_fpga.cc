@@ -100,15 +100,15 @@ void CalcOnFPGA::InitOpenCL(const char   *name,
   command_queue = clCreateCommandQueue(context, device_id[0], 0, &status);
 
   // memory object_m
-  X_buf = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(double)*N, NULL, &status);
+  X_buf = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float)*N, NULL, &status);
   aocl_utils::checkError(status, "Failed to create buffer for X");
-  VAL_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(double)*VAL_SIZE, NULL, &status);
+  VAL_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float)*VAL_SIZE, NULL, &status);
   aocl_utils::checkError(status, "Failed to create buffer for VAL");
   COL_IND_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(int)*VAL_SIZE, NULL, &status);
   aocl_utils::checkError(status, "Failed to create buffer for COL_IND");
   ROW_PTR_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(int)*(N+1), NULL, &status);
   aocl_utils::checkError(status, "Failed to create buffer for ROW_PTR");
-  B_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(double)*N, NULL, &status);
+  B_buf = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float)*N, NULL, &status);
   aocl_utils::checkError(status, "Failed to create buffer for B");
 
   // Set kernel arguments.
@@ -126,19 +126,19 @@ void CalcOnFPGA::InitOpenCL(const char   *name,
 /********************************************************************/
 void CalcOnFPGA::SendDatatoFPGA(const size_t N,
                                 const size_t VAL_SIZE,
-                                double *VAL,
+                                float *VAL,
                                 int *COL_IND,
                                 int *ROW_PTR,
-                                double *B) {
+                                float *B) {
   // host to device_m
   cl_int status;
-  status = clEnqueueWriteBuffer(command_queue, VAL_buf, CL_TRUE, 0, sizeof(double)*VAL_SIZE, VAL, 0, NULL, NULL);
+  status = clEnqueueWriteBuffer(command_queue, VAL_buf, CL_TRUE, 0, sizeof(float)*VAL_SIZE, VAL, 0, NULL, NULL);
   aocl_utils::checkError(status, "Failed to transfer input VAL");
   status = clEnqueueWriteBuffer(command_queue, COL_IND_buf, CL_TRUE, 0, sizeof(int)*VAL_SIZE, COL_IND, 0, NULL, NULL);
   aocl_utils::checkError(status, "Failed to transfer input COL_IND");
   status = clEnqueueWriteBuffer(command_queue, ROW_PTR_buf, CL_TRUE, 0, sizeof(int)*(N+1), ROW_PTR, 0, NULL, NULL);
   aocl_utils::checkError(status, "Failed to transfer input ROW_PTR");
-  status = clEnqueueWriteBuffer(command_queue, B_buf, CL_TRUE, 0, sizeof(double)*N, B, 0, NULL, &write_event[0]);
+  status = clEnqueueWriteBuffer(command_queue, B_buf, CL_TRUE, 0, sizeof(float)*N, B, 0, NULL, &write_event[0]);
   aocl_utils::checkError(status, "Failed to transfer input B");
 }
 
@@ -154,35 +154,35 @@ void CalcOnFPGA::Exec(const size_t *global_item_size,
 
 /********************************************************************/
 void CalcOnFPGA::RecvDatafromFPGA(const size_t numstream,
-                                  double        *FPGA_calc_result) {
+                                  float        *FPGA_calc_result) {
   // device to host_m
-  cl_int status = clEnqueueReadBuffer(command_queue, X_buf, CL_TRUE, 0, sizeof(double)*numstream, FPGA_calc_result, 1, &kernel_event, &finish_event);
+  cl_int status = clEnqueueReadBuffer(command_queue, X_buf, CL_TRUE, 0, sizeof(float)*numstream, FPGA_calc_result, 1, &kernel_event, &finish_event);
   aocl_utils::checkError(status, "Failed to transfer output X");
 }
 
 
 /********************************************************************/
 void CalcOnFPGA::Verify(
-    double* FPGA_calc_result,
-    double* VAL,
+    float* FPGA_calc_result,
+    float* VAL,
     int* COL_IND,
     int* ROW_PTR,
-    double* B,
+    float* B,
     int N,
     int K,
     int VAL_SIZE
 	  )
 {
-	// double *x = new double[N], *r = new double[N], *p = new double[N], *y = new double[N], alfa, beta;
-	// double *VAL_local = new double[VAL_SIZE];
+	// float *x = new float[N], *r = new float[N], *p = new float[N], *y = new float[N], alfa, beta;
+	// float *VAL_local = new float[VAL_SIZE];
 	// int *COL_IND_local = new int[VAL_SIZE], *ROW_PTR_local = new int[N + 1];
-	// double temp_sum, temp_pap, temp_rr1, temp_rr2;
+	// float temp_sum, temp_pap, temp_rr1, temp_rr2;
   int error = N;
 
-	double x[N], r[N], p[N], y[N], alfa, beta;
-	double VAL_local[VAL_SIZE];
+	float x[N], r[N], p[N], y[N], alfa, beta;
+	float VAL_local[VAL_SIZE];
 	int COL_IND_local[VAL_SIZE], ROW_PTR_local[N + 1];
-	double temp_sum, temp_pap, temp_rr1, temp_rr2, sum = 0;
+	float temp_sum, temp_pap, temp_rr1, temp_rr2, sum = 0, sum_cpu = 0;
 
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
@@ -252,9 +252,10 @@ void CalcOnFPGA::Verify(
     // std::cout << "FPGA" << FPGA_calc_result[j] << ", CPU"<< x[j] << std::endl;
 		if(FPGA_calc_result[j] != x[j]) {
       error = j;
-      break;
+      // break;
     }
     sum += FPGA_calc_result[j];
+    sum_cpu += x[j];
 	}
 
   if (error == N) {
@@ -263,6 +264,8 @@ void CalcOnFPGA::Verify(
     std::cout << "ResultFPGA = " << sum << std::endl;
   } else {
     std::cout << "Error! FPGA Verification failed..." << error << std::endl;
+    std::cout << "ResultFPGA = " << sum << std::endl;
+    std::cout << "ResultCPU  = " << sum_cpu << std::endl;
   }
   std::cout << "CG CPU elapsed time: " << std::fixed << std::chrono::duration_cast<std::chrono::microseconds>(end-start).count() << " usec" << std::endl;
 }

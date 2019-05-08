@@ -21,29 +21,29 @@ class CalcOnFPGA {
 
   void SendDatatoFPGA(const size_t N,
                       const size_t VAL_SIZE,
-                      double *VAL,
+                      float *VAL,
                       int *COL_IND,
                       int *ROW_PTR,
-                      double *B);
-                      // aocl_utils::scoped_aligned_ptr<double> &GPU_calc_rslt_list);
+                      float *B);
+                      // aocl_utils::scoped_aligned_ptr<float> &GPU_calc_rslt_list);
   
   void Exec(const size_t *global_item_size,
             const size_t *local_item_size);
   
   void RecvDatafromFPGA(const size_t numstream,
-                        double *FPGA_calc_result);
-                        // aocl_utils::scoped_aligned_ptr<double> &FPGA_calc_rslt_list);
+                        float *FPGA_calc_result);
+                        // aocl_utils::scoped_aligned_ptr<float> &FPGA_calc_rslt_list);
   
   void Verify(
-    double* FPGA_calc_result,
-    double* VAL,
+    float* FPGA_calc_result,
+    float* VAL,
     int* COL_IND,
     int* ROW_PTR,
-    double* B,
+    float* B,
     int N,
     int K,
     int VAL_SIZE);
-              // aocl_utils::scoped_aligned_ptr<double> &FPGA_calc_rslt_list);
+              // aocl_utils::scoped_aligned_ptr<float> &FPGA_calc_rslt_list);
 
   cl_event         kernel_event;
  private:

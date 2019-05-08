@@ -11,11 +11,11 @@ extern "C"{
 }
 #include "calc_on_fpga.h"
 
-__global__ void matmul(double *a, double *b, double *c, int N) {
+__global__ void matmul(float *a, float *b, float *c, int N) {
   int j = blockIdx.x * blockDim.x + threadIdx.x; // 通し番号を得るための計算
   int i = blockIdx.y * blockDim.y + threadIdx.y;
   int k;
-  double sum = 0.0f;
+  float sum = 0.0f;
   if (i >= N || j >= N)
     return;
 
@@ -25,11 +25,11 @@ __global__ void matmul(double *a, double *b, double *c, int N) {
   c[i*N+j] = sum;
 }
 
-__global__ void matrix_vector_malti(double *a,double *b, double *c, int N)
+__global__ void matrix_vector_malti(float *a,float *b, float *c, int N)
 {
   int i = blockIdx.x * blockDim.x + threadIdx.x; // 通し番号を得るための計算
   int j;
-  double sum = 0.0;
+  float sum = 0.0;
   if (i < N) {
     for (j=0; j<N; ++j)
       sum += a[i*N+j] * b[j];
@@ -37,7 +37,7 @@ __global__ void matrix_vector_malti(double *a,double *b, double *c, int N)
   }
 }
 
-void MatrixMultiplication_openmp(double *a,double *b, double *c, int N)
+void MatrixMultiplication_openmp(float *a,float *b, float *c, int N)
 {
   int i, j, k;
   int chunk;
@@ -54,7 +54,7 @@ void MatrixMultiplication_openmp(double *a,double *b, double *c, int N)
 #pragma omp for
     for (i=0; i<N; ++i){
       for (j=0; j<N; ++j){
-        double sum = 0.0 ;
+        float sum = 0.0 ;
         for (k=0; k<N; ++k)
           sum += a[i*N+k] * b[k*N+j];
         c[i*N+j] = sum;
@@ -64,7 +64,7 @@ void MatrixMultiplication_openmp(double *a,double *b, double *c, int N)
 }
 
 
-void h_matrix_vector_malti(double *a,double *b, double *c, int N)
+void h_matrix_vector_malti(float *a,float *b, float *c, int N)
 {
   int i, j;
   int chunk;
@@ -79,7 +79,7 @@ void h_matrix_vector_malti(double *a,double *b, double *c, int N)
   {
 #pragma omp for
     for (i=0; i<N; ++i){
-      double sum = 0.0 ;
+      float sum = 0.0 ;
       for (j=0; j<N; ++j)
         sum += a[i*N+j]*b[j];
       c[i] = sum;
@@ -87,7 +87,7 @@ void h_matrix_vector_malti(double *a,double *b, double *c, int N)
   }
 }
 
-void verify_gpu(double *h_c, double *c_CPU, unsigned long N) {
+void verify_gpu(float *h_c, float *c_CPU, unsigned long N) {
   double cpu_sum = 0.0;
   double gpu_sum = 0.0;
   double rel_err = 0.0;
@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
   const int  valsize   = A->nnz;
 	int VAL_SIZE = valsize;
   const int  numtry    = std::stoull(std::string(argv[4]));
-  const unsigned long numbyte   = numdata_h * numdata_h * sizeof(double); // this sample uses "double"
+  const unsigned long numbyte   = numdata_h * numdata_h * sizeof(float); // this sample uses "float"
 
   std::cout << "numdata_h: " << numdata_h << ", valsize: " << valsize << ", numtry: " << numtry << std::endl;
 
@@ -161,15 +161,15 @@ int main(int argc, char *argv[]) {
   /***** GPU *****/
   static const int numthread = 16;  
   const int numblock = (numdata_h % numthread) ? (numdata_h/numthread) + 1 : (numdata_h/numthread);
-  double *h_a, *h_b, *h_c, *c_CPU, *h_vec_b, *h_vec_mul, *vec_b_CPU;
+  float *h_a, *h_b, *h_c, *c_CPU, *h_vec_b, *h_vec_mul, *vec_b_CPU;
 
   cudaMallocHost(&h_a, numbyte);
   cudaMallocHost(&h_b, numbyte);
   cudaMallocHost(&h_c, numbyte);
-  c_CPU = new double[numdata_h * numdata_h];
-  vec_b_CPU = new double[numdata_h];
-  cudaMallocHost(&h_vec_mul, numdata_h*sizeof(double));
-  cudaMallocHost(&h_vec_b, numdata_h*sizeof(double));
+  c_CPU = new float[numdata_h * numdata_h];
+  vec_b_CPU = new float[numdata_h];
+  cudaMallocHost(&h_vec_mul, numdata_h*sizeof(float));
+  cudaMallocHost(&h_vec_b, numdata_h*sizeof(float));
   
   for (int i = 0; i < numdata_h; ++i) {
     for (int j = 0; j < numdata_h; ++j) {
@@ -186,33 +186,33 @@ int main(int argc, char *argv[]) {
   /***** FPGA *****/
 	int K = numtry;
   static CalcOnFPGA calc_on_fpga;
-  double *FPGA_calc_result; // X_result
-  double *VAL;
+  float *FPGA_calc_result; // X_result
+  float *VAL;
   int *COL_IND;
   int *ROW_PTR;
-  double *B;
+  float *B;
 
-  posix_memalign((void **)&FPGA_calc_result, 64, N * sizeof(double));
-  posix_memalign((void **)&VAL, 64, VAL_SIZE * sizeof(double));
+  posix_memalign((void **)&FPGA_calc_result, 64, N * sizeof(float));
+  posix_memalign((void **)&VAL, 64, VAL_SIZE * sizeof(float));
   posix_memalign((void **)&COL_IND, 64, VAL_SIZE * sizeof(int));
   posix_memalign((void **)&ROW_PTR, 64, (N+1) * sizeof(int));
-  posix_memalign((void **)&B, 64, N * sizeof(double));
+  posix_memalign((void **)&B, 64, N * sizeof(float));
 
-  memcpy(VAL, A->values, VAL_SIZE * sizeof (double));
-  memcpy(COL_IND, A->colidx, VAL_SIZE * sizeof (double));
-  memcpy(ROW_PTR, A->rowptr, (N+1) * sizeof (double));
+  memcpy(VAL, A->values, VAL_SIZE * sizeof (float));
+  memcpy(COL_IND, A->colidx, VAL_SIZE * sizeof (float));
+  memcpy(ROW_PTR, A->rowptr, (N+1) * sizeof (float));
 
   calc_on_fpga.InitOpenCL(name, N, K, VAL_SIZE, global_item_size, local_item_size);
 
   // device memory settings
   ///////////////////////////////////////////
-  double *d_a, *d_b, *d_c, *d_vec_mul, *d_vec_b;
+  float *d_a, *d_b, *d_c, *d_vec_mul, *d_vec_b;
 
   cudaMalloc(&d_a, numbyte);
   cudaMalloc(&d_b, numbyte);
   cudaMalloc(&d_c, numbyte);
-  cudaMalloc(&d_vec_mul, numdata_h*sizeof(double));
-  cudaMalloc(&d_vec_b, numdata_h*sizeof(double));
+  cudaMalloc(&d_vec_mul, numdata_h*sizeof(float));
+  cudaMalloc(&d_vec_b, numdata_h*sizeof(float));
  
   // main routine
   ///////////////////////////////////////////
@@ -222,13 +222,13 @@ int main(int argc, char *argv[]) {
 
   cudaMemcpy(d_a, h_a, numbyte, cudaMemcpyHostToDevice);
   cudaMemcpy(d_b, h_b, numbyte, cudaMemcpyHostToDevice);
-  cudaMemcpy(d_vec_mul, h_vec_mul, numdata_h*sizeof(double), cudaMemcpyHostToDevice);
-  // cudaMemcpy(d_vec_b, h_vec_b, numdata_h*sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(d_vec_mul, h_vec_mul, numdata_h*sizeof(float), cudaMemcpyHostToDevice);
+  // cudaMemcpy(d_vec_b, h_vec_b, numdata_h*sizeof(float), cudaMemcpyHostToDevice);
   
   matmul<<<dim3(numblock, numblock), dim3(numthread, numthread)>>>(d_a, d_b, d_c, numdata_h);
   matrix_vector_malti<<<dim3(numblock), dim3(numthread)>>>(d_c, d_vec_mul, d_vec_b, numdata_h);
   
-  cudaMemcpy(h_vec_b, d_vec_b, numdata_h*sizeof(double), cudaMemcpyDeviceToHost);
+  cudaMemcpy(h_vec_b, d_vec_b, numdata_h*sizeof(float), cudaMemcpyDeviceToHost);
 
   std::chrono::system_clock::time_point end_gpu = std::chrono::system_clock::now();
   
@@ -279,8 +279,8 @@ int main(int argc, char *argv[]) {
   cudaFree(d_vec_b);
   cudaFree(d_vec_b);
 
-  destroy_sparse_matrix(A_);
-  destroy_csr_matrix(A);
+  // destroy_sparse_matrix(A_);
+  // destroy_csr_matrix(A);
 
   delete[] FPGA_calc_result;
   
