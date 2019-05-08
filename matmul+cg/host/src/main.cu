@@ -119,19 +119,20 @@ void verify_gpu(float *h_c, float *c_CPU, unsigned long N) {
 } 
 
 int main(int argc, char *argv[]) {
-	struct sparse_matrix_t* A = load_sparse_matrix(MATRIX_MARKET, "bcsstk17.mtx");
-	assert(A != NULL);
-	int errcode = sparse_matrix_convert(A, CSR);
+	struct sparse_matrix_t* A_ = load_sparse_matrix(MATRIX_MARKET, "bcsstk17.mtx");
+	assert(A_ != NULL);
+	int errcode = sparse_matrix_convert(A_, CSR);
 	if (errcode != 0)
 	{
 		fprintf(stderr, "*** Conversion failed! ***\n");
-		// Note: Don't call destroy_sparse_matrix (A) unless you 
+		// Note: Don't call destroy_sparse_matrix (A_) unless you 
 		// can call free on val, ind and ptr.
-		free(A);
+		free(A_);
 		exit(EXIT_FAILURE);
 	}
 
-
+  struct crc_matrix_t* A = (struct crc_matrix_t*) A_->repr;
+  
   // check command line arguments
   ///////////////////////////////////////////
   if (argc == 1) { std::cout << "usage: ./host <name> <numdata_h> <valsize> <numtry>"   << std::endl; exit(0); }
@@ -277,6 +278,7 @@ int main(int argc, char *argv[]) {
   cudaFree(d_vec_b);
   cudaFree(d_vec_b);
 
+  destroy_csr_matrix(_A);
   destroy_csr_matrix(A);
 
   delete[] FPGA_calc_result;

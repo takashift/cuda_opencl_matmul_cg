@@ -57,7 +57,7 @@ TARGET_DIR := bin
 
 # Directories
 INC_DIRS := ../common/inc ./host/include
-LIB_DIRS := /home/tsunashima/bebop/sparse_matrix_converter /home/tsunashima/bebop/bebop_util
+LIB_DIRS := /home/tsunashima/bebop/sparse_matrix_converter/include /home/tsunashima/bebop/bebop_util/include
 
 
 # Files
