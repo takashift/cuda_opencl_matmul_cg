@@ -57,14 +57,14 @@ TARGET_DIR := bin
 
 # Directories
 INC_DIRS := ../common/inc ./host/include /home/tsunashima/bebop/sparse_matrix_converter/include /home/tsunashima/bebop/bebop_util/include
-LIB_DIRS := 
+LIB_DIRS := /home/tsunashima/bebop/sparse_matrix_converter /home/tsunashima/bebop/bebop_util
 
 # Files
 INCS := $(wildcard ./host/include/*.h)
 SRCS := $(wildcard ./host/src/*.cc ../common/src/AOCLUtils/*.cc)
 # OBJS := $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS:.cc=.o)))
 OBJS := $(SRCS:.cc=.o)
-LIBS := rt
+LIBS := rt sparse_matrix_converter bebop_util
 
 
 # Commandline arguments
@@ -93,8 +93,8 @@ all: $(TARGET_DIR)/$(TARGET)
 # Host executable target.
 $(TARGET_DIR)/$(TARGET): Makefile $(SRCS) $(INCS) $(TARGET_DIR)
 	$(CXX) $(CXXFLAGS) -fPIC $(foreach D,$(INC_DIRS),-I$D) $(AOCL_COMPILE_CONFIG) $(SRCS) $(AOCL_LINK_CONFIG) $(foreach D,$(LIB_DIRS),-L$D) $(foreach L,$(LIBS),-l$L) -c
-	$(NVCC) $(NVCCFLAGS) $(foreach D,$(INC_DIRS),-I$D) host/src/main.cu -c
-	$(NVCC) $(NVCCFLAGS) $(filter-out $(NVCC_NONSUPPORTED_FLAGS),$(AOCL_LINK_CONFIG)) -o $@ *.o
+	$(NVCC) $(NVCCFLAGS) $(foreach D,$(INC_DIRS),-I$D) $(foreach D,$(LIB_DIRS),-L$D) $(foreach L,$(LIBS),-l$L) host/src/main.cu -c
+	$(NVCC) $(NVCCFLAGS) $(filter-out $(NVCC_NONSUPPORTED_FLAGS),$(AOCL_LINK_CONFIG)) $(foreach D,$(LIB_DIRS),-L$D) $(foreach L,$(LIBS),-l$L) -o $@ *.o
 
 # # Host executable target.
 # $(TARGET_DIR)/$(TARGET): $(OBJS)
