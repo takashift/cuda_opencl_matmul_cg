@@ -3,7 +3,7 @@
 #include <cmath>
 #include <omp.h>
 #include <chrono>
-#include <assert.h>
+#include <cassert>
 extern "C"{
   #include <bebop/smc/sparse_matrix.h>
   #include <bebop/smc/sparse_matrix_ops.h>
@@ -134,6 +134,8 @@ int main(int argc, char *argv[]) {
 	}
 
   struct csr_matrix_t* A = (struct csr_matrix_t*) A_->repr;
+  assert (A);
+  assert (A->nnz == (A->rowptr[A->m] - A->rowptr[0]));
   
   // check command line arguments
   ///////////////////////////////////////////
@@ -141,9 +143,9 @@ int main(int argc, char *argv[]) {
   if (argc != 5) { std::cerr << "Error! The number of arguments is wrong."              << std::endl; exit(1); }
 
   const char *name     = argv[1];
-  const int  numdata_h = csr_matrix_num_rows(A)-1; // std::stoull(std::string(argv[2]));
+  const int  numdata_h = A->n; // std::stoull(std::string(argv[2]));
 	int N = numdata_h;
-  const int  valsize   = csr_matrix_num_cols(A);
+  const int  valsize   = A->nnz;
 	int VAL_SIZE = valsize;
   const int  numtry    = std::stoull(std::string(argv[4]));
   const unsigned long numbyte   = numdata_h * numdata_h * sizeof(float); // this sample uses "float"
