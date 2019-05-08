@@ -56,9 +56,8 @@ TARGET := host
 TARGET_DIR := bin
 
 # Directories
-INC_DIRS := ../common/inc ./host/include
-LIB_DIRS := /home/tsunashima/bebop/sparse_matrix_converter/include /home/tsunashima/bebop/bebop_util/include
-
+INC_DIRS := ../common/inc ./host/include /home/tsunashima/bebop/sparse_matrix_converter/include /home/tsunashima/bebop/bebop_util/include
+LIB_DIRS := 
 
 # Files
 INCS := $(wildcard ./host/include/*.h)
