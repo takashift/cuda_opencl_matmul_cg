@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-  const struct crc_matrix_t* A = (struct crc_matrix_t*) A_->repr;
+  struct crc_matrix_t* A = (struct crc_matrix_t*) A_->repr;
   
   // check command line arguments
   ///////////////////////////////////////////
@@ -196,8 +196,8 @@ int main(int argc, char *argv[]) {
 
 	for (int i = 0; i < VAL_SIZE; ++i)
 	{
-		VAL[i] = A.values[i];
-		COL_IND[i] = A.colidx[i];
+		VAL[i] = A->values[i];
+		COL_IND[i] = A->colidx[i];
 	}
 
   calc_on_fpga.InitOpenCL(name, N, K, VAL_SIZE, global_item_size, local_item_size);
@@ -235,7 +235,7 @@ int main(int argc, char *argv[]) {
   /***** FPGA *****/
   for(int j=0; j<N; ++j) {
     // FPGA_calc_result[j] = 0;
-		ROW_PTR[j] = A.rowptr[j];
+		ROW_PTR[j] = A->rowptr[j];
 		B[j] = h_vec_b[j] - VAL[j] * 1; //000000.0; // b - Ax
   }
   ROW_PTR[N] = N;
