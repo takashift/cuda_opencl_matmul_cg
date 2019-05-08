@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-  struct crc_matrix_t* A = (struct crc_matrix_t*) A_->repr;
+  struct csr_matrix_t* A = (struct csr_matrix_t*) A_->repr;
   
   // check command line arguments
   ///////////////////////////////////////////
