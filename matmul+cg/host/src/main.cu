@@ -179,7 +179,7 @@ int main(int argc, char *argv[]) {
       c_CPU[i*numdata_h+j] = 0.0f;
     }
     h_vec_b[i] = 0.0f;
-    h_vec_mul[i] = 0.01f;
+    h_vec_mul[i] = 0.01f; //100.0f;
     vec_b_CPU[i] = 0.0f;
   }
 
@@ -198,9 +198,16 @@ int main(int argc, char *argv[]) {
   posix_memalign((void **)&ROW_PTR, 64, (N+1) * sizeof(int));
   posix_memalign((void **)&B, 64, N * sizeof(float));
 
-  memcpy(VAL, A->values, VAL_SIZE * sizeof (float));
-  memcpy(COL_IND, A->colidx, VAL_SIZE * sizeof (float));
-  memcpy(ROW_PTR, A->rowptr, (N+1) * sizeof (float));
+  double *VAL_temp;
+  posix_memalign((void **)&VAL_temp, 64, VAL_SIZE * sizeof(double));
+   
+  memcpy(VAL_temp, A->values, VAL_SIZE * sizeof (double));
+  memcpy(COL_IND, A->colidx, VAL_SIZE * sizeof (int));
+  memcpy(ROW_PTR, A->rowptr, (N+1) * sizeof (int));
+  for (int i = 0; i < VAL_SIZE; ++i)
+  {
+        VAL[i] = (float)VAL_temp[i];
+  }
 
   calc_on_fpga.InitOpenCL(name, N, K, VAL_SIZE, global_item_size, local_item_size);
 
@@ -239,7 +246,7 @@ int main(int argc, char *argv[]) {
     // FPGA_calc_result[j] = 0;
 		B[j] = h_vec_b[j] - VAL[j] * 1; //000000.0; // b - Ax
   }
-  ROW_PTR[N] = N;
+  // ROW_PTR[N] = N;
 
   std::chrono::system_clock::time_point start_fpga = std::chrono::system_clock::now();
 
