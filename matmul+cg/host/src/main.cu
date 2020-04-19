@@ -14,13 +14,28 @@ extern "C"{
 __global__ void matmul(float *a, float *b, float *c, int N) {
   int j = blockIdx.x * blockDim.x + threadIdx.x; // 通し番号を得るための計算
   int i = blockIdx.y * blockDim.y + threadIdx.y;
-  int k;
-  float sum = 0.0f;
   if (i >= N || j >= N)
     return;
+  int k;
+  int l;
+  int th=16;
+  float sum = 0.0f;
+  __shared__ float localA[16][16];
+  __shared__ float localB[16][16];
 
-  for(k=0; k<N; ++k) {
-    sum += a[i*N+k] * b[k*N+j];
+  if(((j+1)/16 == N/16 && (j+1)%16 > 0) || ((i+1)/16 == N/16 && (i+1)%16 > 0))
+    th = N%16;
+  for(l=0; l<N; l+=th) {
+    __syncthreads();
+    localA[threadIdx.y][threadIdx.x] = a[i*N+(l+threadIdx.x)];
+    localB[threadIdx.y][threadIdx.x] = b[(l+threadIdx.y)*N+j];
+    __syncthreads();
+    // for(k=0; k<N; ++k) {
+    //   sum += a[i*N+k] * b[k*N+j];
+    // }
+    for(k=0; k<th; ++k) {
+      sum += localA[threadIdx.y][k] * localB[k][threadIdx.x];
+    }
   }
   c[i*N+j] = sum;
 }
